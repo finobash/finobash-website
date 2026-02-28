@@ -635,48 +635,68 @@
   </div>
   <div class="pillars-grid">
 
-    <div class="pillar-card">
+    <div class="pillar-card" onclick="openPillar('Investing','📈','From index funds to direct equities, REITs to ETFs — practical investing content for every stage of your wealth journey.')">
       <div class="pillar-num">01</div>
       <div class="pillar-icon">📈</div>
       <h3>Investing</h3>
       <p>From index funds to direct equities, REITs to ETFs — practical investing content for every stage of your wealth journey.</p>
-      <a href="#" class="pillar-link">Explore →</a>
+      <span class="pillar-link">Explore →</span>
     </div>
 
-    <div class="pillar-card">
+    <div class="pillar-card" onclick="openPillar('Personal Finance','💰','Budgeting, saving, debt management, insurance, and tax optimization. Build a solid financial foundation first.')">
       <div class="pillar-num">02</div>
       <div class="pillar-icon">💰</div>
       <h3>Personal Finance</h3>
       <p>Budgeting, saving, debt management, insurance, and tax optimization. Build a solid financial foundation first.</p>
-      <a href="#" class="pillar-link">Explore →</a>
+      <span class="pillar-link">Explore →</span>
     </div>
 
-    <div class="pillar-card">
+    <div class="pillar-card" onclick="openPillar('Money Mindset','🧠','Your biggest wealth obstacle is between your ears. Overcome scarcity thinking, behavioural biases, and fear of money.')">
       <div class="pillar-num">03</div>
       <div class="pillar-icon">🧠</div>
       <h3>Money Mindset</h3>
       <p>Your biggest wealth obstacle is between your ears. Overcome scarcity thinking, behavioural biases, and fear of money.</p>
-      <a href="#" class="pillar-link">Explore →</a>
+      <span class="pillar-link">Explore →</span>
     </div>
 
-    <div class="pillar-card">
+    <div class="pillar-card" onclick="openPillar('News & Trends','📰','Market updates, policy changes, global economic shifts — simplified and contextualised for the everyday Indian investor.')">
       <div class="pillar-num">04</div>
       <div class="pillar-icon">📰</div>
       <h3>News & Trends</h3>
       <p>Market updates, policy changes, global economic shifts — simplified and contextualised for the everyday Indian investor.</p>
-      <a href="#" class="pillar-link">Explore →</a>
+      <span class="pillar-link">Explore →</span>
     </div>
 
-    <div class="pillar-card">
+    <div class="pillar-card" onclick="openPillar('Myth Busting','🔍','We tear apart viral financial myths, bad advice, and popular misconceptions with data, logic, and no-nonsense analysis.')">
       <div class="pillar-num">05</div>
       <div class="pillar-icon">🔍</div>
       <h3>Myth Busting</h3>
       <p>We tear apart viral financial myths, bad advice, and popular misconceptions with data, logic, and no-nonsense analysis.</p>
-      <a href="#" class="pillar-link">Explore →</a>
+      <span class="pillar-link">Explore →</span>
     </div>
 
   </div>
 </section>
+
+<!-- PILLAR MODAL -->
+<div id="pillarModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(8,11,15,0.95);backdrop-filter:blur(12px);overflow-y:auto;">
+  <div style="max-width:700px;margin:80px auto;padding:0 24px;">
+    <button onclick="closePillar()" style="background:var(--card);border:1px solid var(--border2);color:var(--muted);padding:10px 20px;border-radius:2px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;margin-bottom:40px;">← Back</button>
+    <div id="pillarIcon" style="font-size:3.5rem;margin-bottom:20px;"></div>
+    <div style="display:inline-block;background:var(--gold-dim);border:1px solid var(--border);padding:4px 12px;border-radius:2px;color:var(--gold);font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;">Content Pillar</div>
+    <h2 id="pillarTitle" style="font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:900;letter-spacing:-0.02em;margin-bottom:16px;"></h2>
+    <p id="pillarDesc" style="color:var(--muted);font-size:1rem;line-height:1.75;margin-bottom:60px;"></p>
+    <div style="background:var(--card);border:1px solid var(--border2);border-radius:2px;padding:60px 40px;text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:16px;">🚀</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:12px;">Content Coming Soon</h3>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;max-width:380px;margin:0 auto 28px;">We're building out this section. Follow us on Instagram or drop us an email to suggest what you'd like to see here first!</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn-primary">Follow on Instagram</a>
+        <a href="mailto:finobash.official@gmail.com" class="btn-secondary">Suggest a Topic</a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- BLOG -->
 <section id="blog">
@@ -685,7 +705,13 @@
     <span class="section-tag">Latest Articles</span>
     <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;letter-spacing:-0.02em;">From the Blog</h2>
   </div>
-  <div class="blog-grid">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:2px;padding:80px 40px;text-align:center;">
+    <div style="font-size:3rem;margin-bottom:20px;">✍️</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:12px;">Articles Coming Soon</h3>
+    <p style="color:var(--muted);font-size:1rem;line-height:1.7;max-width:420px;margin:0 auto 28px;">We're working on in-depth finance articles across all 5 pillars. Follow us on Instagram to be the first to know when we publish.</p>
+    <a href="https://www.instagram.com/finobash/" target="_blank" class="btn-primary">Follow @finobash</a>
+  </div>
+  <div class="blog-grid" style="display:none">
     <div class="blog-card featured">
       <div class="blog-thumb" style="background:linear-gradient(135deg,#0d1117,#1a2a1a);">
         📊
@@ -728,29 +754,15 @@
   <div class="about-inner">
     <div class="about-visual">
       <div class="about-frame"></div>
-      <div class="about-badge">
-        <strong>5K+</strong>
-        <span>Subscribers</span>
-      </div>
     </div>
     <div class="about-content">
       <span class="section-tag">About Finobash</span>
       <h2>Finance Education<br/>That Doesn't Talk<br/><em style="color:var(--gold);font-style:italic;">Down to You</em></h2>
       <p>Finobash was born out of frustration — with convoluted financial advice, jargon-heavy articles, and a system that benefits from keeping you confused.</p>
       <p>We simplify everything. From SIPs to stock analysis, from budgeting basics to macroeconomic trends — Finobash delivers honest, research-backed, India-relevant finance content.</p>
-      <div class="about-stats">
-        <div class="stat-item">
-          <strong>50+</strong>
-          <span>Videos Published</span>
-        </div>
-        <div class="stat-item">
-          <strong>5</strong>
-          <span>Core Pillars</span>
-        </div>
-        <div class="stat-item">
-          <strong>100%</strong>
-          <span>Independent</span>
-        </div>
+      <div style="margin-top:36px;">
+        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn-primary" style="display:inline-block;margin-right:12px;">Follow on Instagram</a>
+        <a href="mailto:finobash.official@gmail.com" class="btn-secondary" style="display:inline-block;">Email Us</a>
       </div>
     </div>
   </div>
@@ -765,18 +777,18 @@
       <h2>Let's Talk<br/>Finance.</h2>
       <p>Have a topic you'd love us to cover? A collab idea? Or just want to say hi? Drop a message — we read every one.</p>
       <div class="social-links">
-        <a href="#" class="social-link">
-          <div class="social-icon">▶</div>
-          <div class="social-details">
-            <strong>YouTube</strong>
-            <span>@Finobash</span>
-          </div>
-        </a>
-        <a href="#" class="social-link">
+        <a href="https://www.instagram.com/finobash/" target="_blank" class="social-link">
           <div class="social-icon">📸</div>
           <div class="social-details">
             <strong>Instagram</strong>
             <span>@finobash</span>
+          </div>
+        </a>
+        <a href="mailto:finobash.official@gmail.com" class="social-link">
+          <div class="social-icon">✉️</div>
+          <div class="social-details">
+            <strong>Email</strong>
+            <span>finobash.official@gmail.com</span>
           </div>
         </a>
 
@@ -821,6 +833,20 @@
 </footer>
 
 <script>
+  // Pillar modal
+  function openPillar(title, icon, desc) {
+    document.getElementById('pillarTitle').textContent = title;
+    document.getElementById('pillarIcon').textContent = icon;
+    document.getElementById('pillarDesc').textContent = desc;
+    document.getElementById('pillarModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+  function closePillar() {
+    document.getElementById('pillarModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closePillar(); });
+
   // Custom cursor
   const cursor = document.getElementById('cursor');
   const ring = document.getElementById('cursorRing');
