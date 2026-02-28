@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finobash — Master Your Money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b0f;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --card: #121920;
+    --card2: #16202b;
+    --gold: #c9a84c;
+    --gold2: #e8c96a;
+    --gold-dim: rgba(201,168,76,0.12);
+    --green: #22c55e;
+    --red: #ef4444;
+    --text: #e8e4da;
+    --muted: #7a8694;
+    --border: rgba(201,168,76,0.15);
+    --border2: rgba(255,255,255,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(201,168,76,0.5);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.15s ease, width 0.3s, height 0.3s, border-color 0.3s;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 60px;
+    backdrop-filter: blur(20px);
+    background: rgba(8,11,15,0.85);
+    border-bottom: 1px solid var(--border2);
+    transition: all 0.3s;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    background: var(--gold);
+    color: #080b0f;
+    padding: 10px 22px;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .nav-cta:hover { background: var(--gold2); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 60px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 60% 40%, rgba(201,168,76,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 80% 70%, rgba(34,197,94,0.04) 0%, transparent 50%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; max-width: 700px; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 520px;
+    margin-bottom: 44px;
+    font-weight: 300;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-actions { display: flex; gap: 16px; animation: fadeUp 0.8s 0.3s ease both; }
+  .btn-primary {
+    background: var(--gold);
+    color: #080b0f;
+    padding: 14px 32px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.25); }
+  .btn-secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 32px;
+    border-radius: 2px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Ticker */
+  .ticker-wrap {
+    background: var(--card);
+    border-top: 1px solid var(--border2);
+    border-bottom: 1px solid var(--border2);
+    overflow: hidden;
+    padding: 12px 0;
+  }
+  .ticker {
+    display: flex; gap: 60px;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+  }
+  .ticker-name { color: var(--muted); letter-spacing: 0.05em; }
+  .ticker-price { color: var(--text); font-weight: 500; }
+  .ticker-up { color: var(--green); }
+  .ticker-down { color: var(--red); }
+  @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* PILLARS */
+  .pillars {
+    padding: 100px 60px;
+    background: var(--bg2);
+  }
+  .section-header { text-align: center; margin-bottom: 64px; }
+  .section-tag {
+    display: inline-block;
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .section-header p { color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto; line-height: 1.7; }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .pillar-card {
+    background: var(--card);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .pillar-card::before {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .pillar-card:hover { background: var(--card2); border-color: var(--border); transform: translateY(-4px); }
+  .pillar-card:hover::before { transform: scaleX(1); }
+  .pillar-icon {
+    width: 52px; height: 52px;
+    border-radius: 4px;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+  .pillar-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .pillar-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 24px; }
+  .pillar-link {
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    transition: gap 0.2s;
+  }
+  .pillar-link:hover { gap: 10px; }
+  .pillar-num {
+    position: absolute; top: 24px; right: 28px;
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: rgba(201,168,76,0.06);
+    line-height: 1;
+  }
+
+  /* BLOG */
+  .blog {
+    padding: 100px 60px;
+    background: var(--bg);
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .blog-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 24px;
+  }
+  .blog-card {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .blog-card:hover { border-color: var(--border); transform: translateY(-3px); }
+  .blog-thumb {
+    height: 200px;
+    background: var(--card2);
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+  }
+  .blog-card.featured .blog-thumb { height: 280px; }
+  .blog-thumb-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(18,25,32,0.95));
+  }
+  .blog-content { padding: 24px; }
+  .blog-tag {
+    display: inline-block;
+    background: var(--gold-dim);
+    color: var(--gold);
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .blog-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .blog-card.featured h3 { font-size: 1.5rem; }
+  .blog-card p { color: var(--muted); font-size: 0.85rem; line-height: 1.65; margin-bottom: 16px; }
+  .blog-meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 0.75rem; }
+  .blog-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* ABOUT */
+  .about {
+    padding: 100px 60px;
+    background: var(--bg2);
+  }
+  .about-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-visual {
+    position: relative;
+  }
+  .about-frame {
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .about-frame::after {
+    content: 'FB';
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    font-weight: 900;
+    color: rgba(201,168,76,0.08);
+  }
+  .about-badge {
+    position: absolute;
+    bottom: -20px; right: -20px;
+    background: var(--gold);
+    color: #080b0f;
+    padding: 20px 24px;
+    border-radius: 2px;
+    text-align: center;
+  }
+  .about-badge strong { display: block; font-size: 2rem; font-weight: 900; font-family: 'Playfair Display', serif; }
+  .about-badge span { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; }
+  .about-content .section-tag { text-align: left; display: block; }
+  .about-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    line-height: 1.15;
+  }
+  .about-content p { color: var(--muted); font-size: 1rem; line-height: 1.8; margin-bottom: 20px; }
+  .about-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border2);
+  }
+  .stat-item strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-item span { color: var(--muted); font-size: 0.8rem; }
+
+  /* CONTACT */
+  .contact {
+    padding: 100px 60px;
+    background: var(--bg);
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .contact-form {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    padding: 48px;
+    border-radius: 2px;
+  }
+  .form-group { margin-bottom: 24px; }
+  .form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { border-color: var(--gold); }
+  .form-group textarea { resize: vertical; min-height: 120px; }
+  .form-group select option { background: var(--bg); }
+  .btn-submit {
+    width: 100%;
+    background: var(--gold);
+    color: #080b0f;
+    border: none;
+    padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { background: var(--gold2); transform: translateY(-2px); }
+  .contact-info h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .contact-info p { color: var(--muted); font-size: 1rem; line-height: 1.75; margin-bottom: 48px; }
+  .social-links { display: flex; flex-direction: column; gap: 16px; }
+  .social-link {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .social-link:hover { border-color: var(--gold); transform: translateX(6px); }
+  .social-icon {
+    width: 40px; height: 40px;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .social-details strong { display: block; font-weight: 600; font-size: 0.9rem; }
+  .social-details span { color: var(--muted); font-size: 0.8rem; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border2);
+    padding: 40px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--text);
+  }
+  .footer-logo span { color: var(--gold); }
+  footer p { color: var(--muted); font-size: 0.8rem; }
+  .footer-note {
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 60px; }
+    .pillars, .about, .contact { padding: 70px 24px; }
+    .blog { padding: 70px 24px; }
+    .blog-grid { grid-template-columns: 1fr; }
+    .about-inner, .contact-inner { grid-template-columns: 1fr; gap: 40px; }
+    .about-badge { bottom: 10px; right: 10px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Fino<span>bash</span></div>
+  <ul class="nav-links">
+    <li><a href="#pillars">Pillars</a></li>
+    <li><a href="#blog">Blog</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Subscribe</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Finance Education Channel</div>
+    <h1>Your Money.<br/><em>Simplified.</em><br/>Amplified.</h1>
+    <p>Finobash is your go-to resource for mastering personal finance, investing, and building lasting wealth — without the jargon and gatekeeping.</p>
+    <div class="hero-actions">
+      <a href="#pillars" class="btn-primary">Explore Topics →</a>
+      <a href="#about" class="btn-secondary">About Finobash</a>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="ticker-item"><span class="ticker-name">NIFTY 50</span><span class="ticker-price">22,486.35</span><span class="ticker-up">▲ 1.2%</span></div>
+    <div class="ticker-item"><span class="ticker-name">SENSEX</span><span class="ticker-price">74,119.03</span><span class="ticker-up">▲ 0.9%</span></div>
+    <div class="ticker-item"><span class="ticker-name">GOLD</span><span class="ticker-price">₹62,450</span><span class="ticker-up">▲ 0.4%</span></div>
+    <div class="ticker-item"><span class="ticker-name">USD/INR</span><span class="ticker-price">83.42</span><span class="ticker-down">▼ 0.1%</span></div>
+    <div class="ticker-item"><span class="ticker-name">RBI REPO</span><span class="ticker-price">6.50%</span><span class="ticker-up">—</span></div>
+    <div class="ticker-item"><span class="ticker-name">BITCOIN</span><span class="ticker-price">$68,240</span><span class="ticker-up">▲ 2.3%</span></div>
+    <div class="ticker-item"><span class="ticker-name">INFLATION</span><span class="ticker-price">4.8%</span><span class="ticker-down">▼ 0.2%</span></div>
+    <div class="ticker-item"><span class="ticker-name">NIFTY 50</span><span class="ticker-price">22,486.35</span><span class="ticker-up">▲ 1.2%</span></div>
+    <div class="ticker-item"><span class="ticker-name">SENSEX</span><span class="ticker-price">74,119.03</span><span class="ticker-up">▲ 0.9%</span></div>
+    <div class="ticker-item"><span class="ticker-name">GOLD</span><span class="ticker-price">₹62,450</span><span class="ticker-up">▲ 0.4%</span></div>
+    <div class="ticker-item"><span class="ticker-name">USD/INR</span><span class="ticker-price">83.42</span><span class="ticker-down">▼ 0.1%</span></div>
+    <div class="ticker-item"><span class="ticker-name">RBI REPO</span><span class="ticker-price">6.50%</span><span class="ticker-up">—</span></div>
+    <div class="ticker-item"><span class="ticker-name">BITCOIN</span><span class="ticker-price">$68,240</span><span class="ticker-up">▲ 2.3%</span></div>
+    <div class="ticker-item"><span class="ticker-name">INFLATION</span><span class="ticker-price">4.8%</span><span class="ticker-down">▼ 0.2%</span></div>
+  </div>
+</div>
+
+<!-- 5 PILLARS -->
+<section class="pillars" id="pillars">
+  <div class="section-header">
+    <span class="section-tag">The Framework</span>
+    <h2>Five Pillars of<br/>Financial Mastery</h2>
+    <p>Every piece of content on Finobash is built around one of these core pillars. Find your starting point.</p>
+  </div>
+  <div class="pillars-grid">
+
+    <div class="pillar-card">
+      <div class="pillar-num">01</div>
+      <div class="pillar-icon">📈</div>
+      <h3>Investing</h3>
+      <p>From index funds to direct equities, REITs to ETFs — practical investing content for every stage of your wealth journey.</p>
+      <a href="#" class="pillar-link">Explore →</a>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-num">02</div>
+      <div class="pillar-icon">💰</div>
+      <h3>Personal Finance</h3>
+      <p>Budgeting, saving, debt management, insurance, and tax optimization. Build a solid financial foundation first.</p>
+      <a href="#" class="pillar-link">Explore →</a>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-num">03</div>
+      <div class="pillar-icon">🧠</div>
+      <h3>Money Mindset</h3>
+      <p>Your biggest wealth obstacle is between your ears. Overcome scarcity thinking, behavioural biases, and fear of money.</p>
+      <a href="#" class="pillar-link">Explore →</a>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-num">04</div>
+      <div class="pillar-icon">📰</div>
+      <h3>News & Trends</h3>
+      <p>Market updates, policy changes, global economic shifts — simplified and contextualised for the everyday Indian investor.</p>
+      <a href="#" class="pillar-link">Explore →</a>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-num">05</div>
+      <div class="pillar-icon">🔍</div>
+      <h3>Myth Busting</h3>
+      <p>We tear apart viral financial myths, bad advice, and popular misconceptions with data, logic, and no-nonsense analysis.</p>
+      <a href="#" class="pillar-link">Explore →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog">
+<div class="blog">
+  <div class="section-header" style="text-align:left;margin-bottom:48px;">
+    <span class="section-tag">Latest Articles</span>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;letter-spacing:-0.02em;">From the Blog</h2>
+  </div>
+  <div class="blog-grid">
+    <div class="blog-card featured">
+      <div class="blog-thumb" style="background:linear-gradient(135deg,#0d1117,#1a2a1a);">
+        📊
+        <div class="blog-thumb-overlay"></div>
+      </div>
+      <div class="blog-content">
+        <span class="blog-tag">Investing</span>
+        <h3>Why Index Funds Beat 90% of Active Mutual Funds Over a Decade</h3>
+        <p>The data is clear, and yet most Indian investors still chase "star-rated" actively managed funds. Here's what the numbers actually say.</p>
+        <div class="blog-meta">
+          <span>⏱ 8 min read</span>
+          <span>📅 Feb 2026</span>
+        </div>
+      </div>
+    </div>
+    <div class="blog-card">
+      <div class="blog-thumb" style="background:linear-gradient(135deg,#0d1117,#1a1a2a); font-size:2.5rem;">🧠</div>
+      <div class="blog-content">
+        <span class="blog-tag">Money Mindset</span>
+        <h3>The Psychology of Panic Selling (And How to Stop)</h3>
+        <p>Market dips trigger fear. Fear triggers bad decisions. Here's how to rewire your reaction.</p>
+        <div class="blog-meta"><span>⏱ 5 min read</span></div>
+      </div>
+    </div>
+    <div class="blog-card">
+      <div class="blog-thumb" style="background:linear-gradient(135deg,#0d1117,#2a1a0d); font-size:2.5rem;">💡</div>
+      <div class="blog-content">
+        <span class="blog-tag">Myth Busting</span>
+        <h3>No, Real Estate Is NOT Always Safer Than Stocks</h3>
+        <p>We break down the myth that property is a guaranteed wealth builder with hard numbers.</p>
+        <div class="blog-meta"><span>⏱ 6 min read</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-inner">
+    <div class="about-visual">
+      <div class="about-frame"></div>
+      <div class="about-badge">
+        <strong>5K+</strong>
+        <span>Subscribers</span>
+      </div>
+    </div>
+    <div class="about-content">
+      <span class="section-tag">About Finobash</span>
+      <h2>Finance Education<br/>That Doesn't Talk<br/><em style="color:var(--gold);font-style:italic;">Down to You</em></h2>
+      <p>Finobash was born out of frustration — with convoluted financial advice, jargon-heavy articles, and a system that benefits from keeping you confused.</p>
+      <p>We simplify everything. From SIPs to stock analysis, from budgeting basics to macroeconomic trends — Finobash delivers honest, research-backed, India-relevant finance content.</p>
+      <div class="about-stats">
+        <div class="stat-item">
+          <strong>50+</strong>
+          <span>Videos Published</span>
+        </div>
+        <div class="stat-item">
+          <strong>5</strong>
+          <span>Core Pillars</span>
+        </div>
+        <div class="stat-item">
+          <strong>100%</strong>
+          <span>Independent</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+<div class="contact">
+  <div class="contact-inner">
+    <div class="contact-info">
+      <span class="section-tag" style="display:block;margin-bottom:16px;">Get In Touch</span>
+      <h2>Let's Talk<br/>Finance.</h2>
+      <p>Have a topic you'd love us to cover? A collab idea? Or just want to say hi? Drop a message — we read every one.</p>
+      <div class="social-links">
+        <a href="#" class="social-link">
+          <div class="social-icon">▶</div>
+          <div class="social-details">
+            <strong>YouTube</strong>
+            <span>@Finobash</span>
+          </div>
+        </a>
+        <a href="#" class="social-link">
+          <div class="social-icon">📸</div>
+          <div class="social-details">
+            <strong>Instagram</strong>
+            <span>@finobash</span>
+          </div>
+        </a>
+        <a href="#" class="social-link">
+          <div class="social-icon">𝕏</div>
+          <div class="social-details">
+            <strong>Twitter / X</strong>
+            <span>@finobash</span>
+          </div>
+        </a>
+        <a href="#" class="social-link">
+          <div class="social-icon">in</div>
+          <div class="social-details">
+            <strong>LinkedIn</strong>
+            <span>Finobash</span>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form">
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" placeholder="e.g. Rahul Sharma">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label>Topic / Pillar</label>
+        <select>
+          <option value="">Select a pillar...</option>
+          <option>Investing</option>
+          <option>Personal Finance</option>
+          <option>Money Mindset</option>
+          <option>News & Trends</option>
+          <option>Myth Busting</option>
+          <option>General / Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea placeholder="What's on your mind? Topic suggestions, collabs, feedback..."></textarea>
+      </div>
+      <button class="btn-submit">Send Message →</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Fino<span>bash</span></div>
+  <p>© 2026 Finobash. All rights reserved.</p>
+  <span class="footer-note">Not SEBI registered. For educational purposes only.</span>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+  });
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button, .pillar-card, .blog-card, .social-link').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.style.width = '56px'; ring.style.height = '56px';
+      ring.style.borderColor = 'rgba(201,168,76,0.9)';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.width = '36px'; ring.style.height = '36px';
+      ring.style.borderColor = 'rgba(201,168,76,0.5)';
+    });
+  });
+
+  // Nav scroll style
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    if (window.scrollY > 60) {
+      nav.style.borderBottomColor = 'rgba(201,168,76,0.12)';
+    } else {
+      nav.style.borderBottomColor = 'rgba(255,255,255,0.06)';
+    }
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.pillar-card, .blog-card, .about-inner, .contact-inner').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
