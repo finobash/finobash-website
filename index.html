@@ -22,10 +22,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--B);overflow-x:hidd
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:15px 52px;backdrop-filter:blur(24px);background:rgba(7,9,13,0.92);border-bottom:1px solid var(--bdr2);transition:border-color .3s;}
 .logo{cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;}
-.logo-wrap{display:inline-flex;align-items:stretch;border-radius:4px;overflow:hidden;font-family:var(--F);font-size:1.32rem;font-weight:700;line-height:1;letter-spacing:.01em;box-shadow:0 2px 14px rgba(0,0,0,.4);}
-.logo-fino{background:#ffffff;color:#07090d;padding:6px 6px 6px 12px;display:flex;align-items:center;font-style:normal;}
-.logo-div{width:2px;background:var(--gold);flex-shrink:0;align-self:stretch;}
-.logo-bash{background:var(--gold);color:#07090d;padding:6px 12px 6px 6px;display:flex;align-items:center;font-style:italic;}
+.logo-wrap{display:inline-flex;align-items:stretch;border-radius:4px;overflow:hidden;font-family:var(--F);font-size:1.28rem;font-weight:700;line-height:1;letter-spacing:.02em;}
+.logo-fino{background:#ffffff;color:#07090d;padding:7px 7px 7px 14px;display:flex;align-items:center;font-style:normal;white-space:nowrap;}
+.logo-sep{width:3px;background:var(--gold);flex-shrink:0;}
+.logo-bash{background:var(--gold);color:#07090d;padding:7px 14px 7px 7px;display:flex;align-items:center;font-style:italic;white-space:nowrap;}
 .f-logo{display:inline-flex;align-items:center;}
 .nav-ul{display:flex;gap:26px;list-style:none;align-items:center;}
 .nav-ul a{text-decoration:none;color:var(--muted);font-size:0.74rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;transition:color .2s;cursor:pointer;}
@@ -240,7 +240,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
 
 <!-- NAV -->
 <nav id="nv">
-  <a class="logo" onclick="goH();return false;" href="#"><span class="logo-wrap"><span class="logo-fino">Fino</span><span class="logo-div"></span><span class="logo-bash">Bash</span></span></a>
+  <a class="logo" onclick="goH();return false;" href="#"><span class="logo-wrap"><span class="logo-fino">Fino</span><span class="logo-sep"></span><span class="logo-bash">Bash</span></span></a>
   <ul class="nav-ul">
     <li><a onclick="goH();return false;" href="#">Home</a></li>
     <li><a onclick="showP('markets');return false;" href="#">Global Indicators</a></li>
@@ -358,7 +358,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
   </section>
 
   <footer>
-    <div class="f-logo"><span class="logo-wrap" style="font-size:1.05rem;"><span class="logo-fino">Fino</span><span class="logo-div"></span><span class="logo-bash">Bash</span></span></div>
+    <div class="f-logo"><span class="logo-wrap" style="font-size:1.05rem;"><span class="logo-fino">Fino</span><span class="logo-sep"></span><span class="logo-bash">Bash</span></span></div>
     <p>© 2026 FinoBash. All rights reserved.</p>
     <span class="f-note">Not SEBI registered · Educational purposes only.</span>
   </footer>
@@ -611,14 +611,10 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ══════════════════════════════════════════════════════════
-// FINOBASH DATA ENGINE
-// Priority: YOUR SERVER (NSE/BSE official) → Yahoo fallback
+// FINOBASH DATA ENGINE v3 — multi-proxy, auto-fallback
 // ══════════════════════════════════════════════════════════
 
-// ⚠️ IMPORTANT: After deploying server.js to Railway/Render,
-// replace this with your actual server URL:
-// e.g. 'https://finobash-server.up.railway.app'
-const API_BASE = 'finobash-website-production.up.railway.app'; // ← PASTE YOUR RAILWAY URL HERE after deploying server
+const API_BASE = 'https://finobash-website-production.up.railway.app';
 
 // ── PAGE NAV ──
 function showP(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');window.scrollTo(0,0);if(id==='markets'&&!mktLoaded)loadMkt();}
@@ -629,217 +625,196 @@ function closeMob(){document.getElementById('mobD').style.display='none';}
 function chkMob(){const m=window.innerWidth<=768;document.getElementById('hbg').style.display=m?'block':'none';document.getElementById('mobSubBtn').style.display=m?'block':'none';}
 chkMob();window.addEventListener('resize',chkMob);
 window.addEventListener('scroll',()=>{document.getElementById('nv').style.borderBottomColor=window.scrollY>50?'rgba(212,168,67,.14)':'rgba(255,255,255,.055)';});
-
-// ── PILLAR ──
 function openP(t,i,d){document.getElementById('pT').textContent=t;document.getElementById('pI').textContent=i;document.getElementById('pD').textContent=d;document.getElementById('pModal').style.display='block';document.body.style.overflow='hidden';}
 function closeP(){document.getElementById('pModal').style.display='none';document.body.style.overflow='';}
-
-// ── SUBSCRIBE ──
 const selT=new Set();
 function openSub(){document.getElementById('subModal').classList.add('open');document.body.style.overflow='hidden';}
 function closeSub(){document.getElementById('subModal').classList.remove('open');document.body.style.overflow='';}
 function togT(el){const l=el.querySelector('.t-lbl2').textContent;if(selT.has(l)){selT.delete(l);el.classList.remove('on');}else{selT.add(l);el.classList.add('on');}}
-function doSub(){const e=document.getElementById('sbE').value.trim();if(!e||!e.includes('@')){alert('Please enter a valid email.');return;}console.log('Sub:',{name:document.getElementById('sbN').value,email:e,topics:[...selT].join(', ')||'All'});document.getElementById('subOk').style.display='block';setTimeout(()=>{closeSub();document.getElementById('subOk').style.display='none';document.getElementById('sbE').value='';document.getElementById('sbN').value='';selT.clear();document.querySelectorAll('.t-item').forEach(el=>el.classList.remove('on'));},2600);}
+function doSub(){const e=document.getElementById('sbE').value.trim();if(!e||!e.includes('@')){alert('Please enter a valid email.');return;}document.getElementById('subOk').style.display='block';setTimeout(()=>{closeSub();document.getElementById('subOk').style.display='none';document.getElementById('sbE').value='';document.getElementById('sbN').value='';selT.clear();document.querySelectorAll('.t-item').forEach(el=>el.classList.remove('on'));},2600);}
 document.getElementById('subModal').addEventListener('click',function(e){if(e.target===this)closeSub();});
-
-// ── CONTACT ──
-function doSend(){const n=document.getElementById('cN').value.trim(),e=document.getElementById('cE').value.trim(),m=document.getElementById('cM').value.trim();if(!n||!e||!m){alert('Please fill Name, Email and Message.');return;}if(!e.includes('@')){alert('Please enter a valid email.');return;}const t=document.getElementById('cT').value||'General';window.open('mailto:finobash.official@gmail.com?subject='+encodeURIComponent('[Finobash] '+t+' — from '+n)+'&body='+encodeURIComponent('Name: '+n+'\nEmail: '+e+'\nTopic: '+t+'\n\nMessage:\n'+m),'_blank');document.getElementById('formOk').style.display='block';setTimeout(()=>document.getElementById('formOk').style.display='none',4000);}
+function doSend(){const n=document.getElementById('cN').value.trim(),e=document.getElementById('cE').value.trim(),m=document.getElementById('cM').value.trim();if(!n||!e||!m){alert('Please fill Name, Email and Message.');return;}if(!e.includes('@')){alert('Please enter a valid email.');return;}const t=document.getElementById('cT').value||'General';window.open('mailto:finobash.official@gmail.com?subject='+encodeURIComponent('[FinoBash] '+t)+' &body='+encodeURIComponent('Name: '+n+'\nEmail: '+e+'\nTopic: '+t+'\n\nMessage:\n'+m),'_blank');document.getElementById('formOk').style.display='block';setTimeout(()=>document.getElementById('formOk').style.display='none',4000);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeP();closeSub();}});
 
 // ── HELPERS ──
-function fN(n,d=2){if(!n&&n!==0)return'—';return parseFloat(n).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});}
-function chgH(v,src){const f=parseFloat(v);if(isNaN(f))return'<span style="color:var(--muted)">—</span>';const up=f>=0;return`<span style="color:${up?'var(--green)':'var(--red)'};font-family:var(--M);font-size:.72rem;">${up?'▲':'▼'} ${Math.abs(f).toFixed(2)}%</span>`;}
-function setDot(id,live){const d=document.getElementById(id);if(d){d.className='ds-dot '+(live?'live':'err');}}
+function fN(n,d=2){if(!n&&n!==0)return'\u2014';return parseFloat(n).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function chgH(v){const f=parseFloat(v);if(isNaN(f))return'<span style="color:var(--muted)">\u2014</span>';const up=f>=0;return`<span style="color:${up?'var(--green)':'var(--red)'};font-family:var(--M);font-size:.72rem;">${up?'\u25b2':'\u25bc'} ${Math.abs(f).toFixed(2)}%</span>`;}
+function setDot(id,live){const d=document.getElementById(id);if(d)d.className='ds-dot '+(live?'live':'err');}
 
-// ── DATA FETCHERS ──
+// ── YAHOO via 4 CORS proxies — tries each until one works ──
+async function fromYahoo(sym){
+  const target='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d';
+  const proxies=[
+    ()=>`https://corsproxy.io/?${encodeURIComponent(target)}`,
+    ()=>`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`,
+    ()=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`,
+    ()=>`https://thingproxy.freeboard.io/fetch/${target}`,
+  ];
+  for(const pFn of proxies){
+    try{
+      const r=await fetch(pFn(),{signal:AbortSignal.timeout(7000)});
+      if(!r.ok)continue;
+      const txt=await r.text();
+      let data;
+      try{const w=JSON.parse(txt);data=w.contents?JSON.parse(w.contents):w;}catch{continue;}
+      const m=data?.chart?.result?.[0]?.meta;
+      if(!m?.regularMarketPrice)continue;
+      return{price:m.regularMarketPrice,chg:m.regularMarketChangePercent??0};
+    }catch{continue;}
+  }
+  return null;
+}
 
-// Fetch from YOUR server (NSE/BSE official data)
-async function fromServer(endpoint){
-  if(!API_BASE) return null;
+// ── RAILWAY SERVER (NSE/BSE official) ──
+async function fromServer(ep){
   try{
-    const r=await fetch(API_BASE+endpoint,{signal:AbortSignal.timeout(8000)});
-    if(!r.ok) return null;
+    const r=await fetch(API_BASE+ep,{signal:AbortSignal.timeout(8000)});
+    if(!r.ok)return null;
     return await r.json();
   }catch{return null;}
 }
 
-// Fetch from Yahoo Finance via CORS proxy (fallback)
-async function fromYahoo(sym){
-  try{
-    const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d')}`;
-    const r=await fetch(proxy,{signal:AbortSignal.timeout(9000)});
-    if(!r.ok) return null;
-    const w=await r.json();
-    const d=JSON.parse(w.contents);
-    const m=d?.chart?.result?.[0]?.meta;
-    if(!m?.regularMarketPrice) return null;
-    return{price:m.regularMarketPrice,chg:m.regularMarketChangePercent??0};
-  }catch{return null;}
-}
-
-// ── STATIC FALLBACK (always shown immediately) ──
-const FALLBACK=[
-  {label:'NIFTY 50',price:'22,519',raw:22519,chg:1.18,up:true,src:'NSE'},
-  {label:'SENSEX',price:'74,227',raw:74227,chg:0.88,up:true,src:'BSE'},
-  {label:'GOLD',price:'2,918',raw:2918,chg:0.42,up:true,src:'CME'},
-  {label:'SILVER',price:'32.68',raw:32.68,chg:-0.21,up:false,src:'CME'},
-  {label:'NASDAQ',price:'17,812',raw:17812,chg:-0.38,up:false,src:'NYSE'},
-  {label:'S&P 500',price:'5,962',raw:5962,chg:0.31,up:true,src:'NYSE'},
-  {label:'CRUDE OIL',price:'69.54',raw:69.54,chg:-0.58,up:false,src:'CME'},
-  {label:'USD/INR',price:'83.48',raw:83.48,chg:0.07,up:true,src:'RBI'},
+// ── FALLBACK shown instantly while real data loads ──
+const FB=[
+  {label:'NIFTY 50', price:'22,519',chg:1.18, up:true, src:'NSE'},
+  {label:'SENSEX',   price:'74,227',chg:0.88, up:true, src:'BSE'},
+  {label:'GOLD',     price:'2,918', chg:0.42, up:true, src:'CME'},
+  {label:'SILVER',   price:'32.68', chg:-0.21,up:false,src:'CME'},
+  {label:'NASDAQ',   price:'17,812',chg:-0.38,up:false,src:'NYSE'},
+  {label:'S&P 500',  price:'5,962', chg:0.31, up:true, src:'NYSE'},
+  {label:'CRUDE OIL',price:'69.54', chg:-0.58,up:false,src:'CME'},
+  {label:'USD/INR',  price:'83.48', chg:0.07, up:true, src:'RBI'},
 ];
-function buildStrip(items){return items.map(it=>`<div class="si"><span class="si-src">${it.src}</span><span class="si-n">${it.label}</span><span class="si-p">${it.price}</span><span class="${it.up?'si-u':'si-d'}">${it.up?'▲':'▼'} ${Math.abs(it.chg).toFixed(2)}%</span></div>`).join('');}
+const bSI=items=>items.map(it=>`<div class="si"><span class="si-src">${it.src}</span><span class="si-n">${it.label}</span><span class="si-p">${it.price}</span><span class="${it.up?'si-u':'si-d'}">${it.up?'\u25b2':'\u25bc'} ${Math.abs(it.chg).toFixed(2)}%</span></div>`).join('');
 
-// ── STRIP DATA ──
-const STRIP_SYMS=[
-  {sym:'^NSEI',label:'NIFTY 50',src:'NSE',pvId:'pv-n',pcId:'pc-n'},
-  {sym:'^BSESN',label:'SENSEX',src:'BSE',pvId:'pv-s',pcId:'pc-s'},
-  {sym:'GC=F',label:'GOLD',src:'CME',pvId:'pv-g',pcId:'pc-g'},
-  {sym:'SI=F',label:'SILVER',src:'CME',pvId:'pv-si',pcId:'pc-si'},
-  {sym:'^IXIC',label:'NASDAQ',src:'NYSE',pvId:'pv-nd',pcId:'pc-nd'},
-  {sym:'^GSPC',label:'S&P 500',src:'NYSE'},
-  {sym:'CL=F',label:'CRUDE OIL',src:'CME'},
-  {sym:'USDINR=X',label:'USD/INR',src:'RBI'},
+// ── STRIP ──
+const SYMS=[
+  {sym:'^NSEI',   label:'NIFTY 50', src:'NSE',pvId:'pv-n', pcId:'pc-n'},
+  {sym:'^BSESN',  label:'SENSEX',   src:'BSE',pvId:'pv-s', pcId:'pc-s'},
+  {sym:'GC=F',    label:'GOLD',     src:'CME',pvId:'pv-g', pcId:'pc-g'},
+  {sym:'SI=F',    label:'SILVER',   src:'CME',pvId:'pv-si',pcId:'pc-si'},
+  {sym:'^IXIC',   label:'NASDAQ',   src:'NYSE',pvId:'pv-nd',pcId:'pc-nd'},
+  {sym:'^GSPC',   label:'S&P 500',  src:'NYSE'},
+  {sym:'CL=F',    label:'CRUDE OIL',src:'CME'},
+  {sym:'USDINR=X',label:'USD/INR',  src:'RBI'},
 ];
 
 async function loadStrip(){
-  // Show fallback immediately
-  const ft=document.getElementById('stripT');
-  ft.innerHTML=buildStrip(FALLBACK)+buildStrip(FALLBACK);
-
-  // Try server first for NSE data, then Yahoo for rest
-  const liveItems=[];
-  for(const it of STRIP_SYMS){
-    let q=null;
-    // For NSE indices, try server
-    if(API_BASE && (it.sym==='^NSEI'||it.sym==='^BSESN')){
-      const d=await fromServer('/api/nse/indices');
-      if(d?.data){
-        const key=it.sym==='^NSEI'?'NIFTY 50':'S&P BSE SENSEX';
-        const found=d.data.find(i=>i.name.includes('NIFTY 50')||i.name.includes('SENSEX'));
-        // simplified lookup
-      }
-    }
-    // Always try Yahoo as reliable fallback
-    q=await fromYahoo(it.sym);
+  const el=document.getElementById('stripT');
+  el.innerHTML=bSI(FB)+bSI(FB); // show fallback instantly
+  const live=[];
+  for(const it of SYMS){
+    const q=await fromYahoo(it.sym);
     if(q){
       const up=q.chg>=0;
-      liveItems.push({label:it.label,price:fN(q.price),raw:q.price,chg:q.chg,up,src:it.src});
+      live.push({label:it.label,price:fN(q.price),chg:q.chg,up,src:it.src});
       if(it.pvId){
         const ve=document.getElementById(it.pvId);
         const ce=document.getElementById(it.pcId);
         if(ve)ve.textContent=fN(q.price);
-        if(ce){ce.textContent=(up?'▲':'▼')+' '+Math.abs(q.chg).toFixed(2)+'%';ce.style.color=up?'var(--green)':'var(--red)';ce.style.fontFamily='var(--M)';ce.style.fontSize='.66rem';}
+        if(ce){ce.textContent=(up?'\u25b2':'\u25bc')+' '+Math.abs(q.chg).toFixed(2)+'%';ce.style.color=up?'var(--green)':'var(--red)';ce.style.fontFamily='var(--M)';ce.style.fontSize='.66rem';}
       }
     }
   }
-  if(liveItems.length>=3) ft.innerHTML=buildStrip(liveItems)+buildStrip(liveItems);
+  if(live.length>=3)el.innerHTML=bSI(live)+bSI(live);
 }
 
-// ── NSE INDICES TABLE ──
-const NSE_WANT=['NIFTY 50','NIFTY BANK','NIFTY IT','NIFTY METAL','NIFTY PHARMA','NIFTY NEXT 50','NIFTY MIDCAP 100','GIFT NIFTY'];
-const NSE_YAHOO_MAP=[
-  {name:'Nifty 50',sym:'^NSEI'},{name:'Sensex',sym:'^BSESN'},
-  {name:'Gift Nifty',sym:'NIFTYBEES.NS'},{name:'Nifty Bank',sym:'^NSEBANK'},
-  {name:'Nifty IT',sym:'^CNXIT'},{name:'Nifty Pharma',sym:'PHARMABEES.NS'},
-  {name:'Nifty Metal',sym:'METALBEES.NS'},{name:'Nifty Next 50',sym:'^NSMIDCP'},
+// ── MARKETS PAGE ──
+const IND_SYMS=[
+  {name:'Nifty 50',     sym:'^NSEI'},     {name:'Sensex',       sym:'^BSESN'},
+  {name:'Nifty Bank',   sym:'^NSEBANK'},  {name:'Nifty IT',     sym:'^CNXIT'},
+  {name:'Nifty Next 50',sym:'^NSMIDCP'},  {name:'Gift Nifty',   sym:'NIFTYBEES.NS'},
+  {name:'Nifty Pharma', sym:'PHARMABEES.NS'},{name:'Nifty Metal',sym:'METALBEES.NS'},
 ];
-const GLOBAL_MAP=[
-  {id:'sp',sym:'^GSPC'},{id:'nq',sym:'^IXIC'},{id:'dj',sym:'^DJI'},
-  {id:'ft',sym:'^FTSE'},{id:'nk',sym:'^N225'},{id:'hs',sym:'^HSI'},
-  {id:'dx',sym:'^GDAXI'},{id:'ca',sym:'^FCHI'},
-  {id:'gd',sym:'GC=F',p:'$'},{id:'sv',sym:'SI=F',p:'$'},
-  {id:'oil',sym:'CL=F',p:'$'},{id:'ng',sym:'NG=F',p:'$'},
-  {id:'cu',sym:'HG=F',p:'$'},{id:'pt',sym:'PL=F',p:'$'},
-  {id:'usd',sym:'USDINR=X',p:'₹'},{id:'eur',sym:'EURINR=X',p:'₹'},
-  {id:'gbp',sym:'GBPINR=X',p:'₹'},
+const GLB=[
+  {id:'sp', sym:'^GSPC'}, {id:'nq',sym:'^IXIC'},  {id:'dj', sym:'^DJI'},
+  {id:'ft', sym:'^FTSE'}, {id:'nk',sym:'^N225'},  {id:'hs', sym:'^HSI'},
+  {id:'dx', sym:'^GDAXI'},{id:'ca',sym:'^FCHI'},
+  {id:'gd', sym:'GC=F',  p:'$'},{id:'sv', sym:'SI=F',  p:'$'},
+  {id:'oil',sym:'CL=F',  p:'$'},{id:'ng', sym:'NG=F',  p:'$'},
+  {id:'cu', sym:'HG=F',  p:'$'},{id:'pt', sym:'PL=F',  p:'$'},
+  {id:'usd',sym:'USDINR=X',p:'\u20b9'},{id:'eur',sym:'EURINR=X',p:'\u20b9'},
+  {id:'gbp',sym:'GBPINR=X',p:'\u20b9'},
 ];
+const N50=['RELIANCE.NS','TCS.NS','HDFCBANK.NS','BHARTIARTL.NS','ICICIBANK.NS','INFOSYS.NS','SBIN.NS','HINDUNILVR.NS','ITC.NS','LT.NS','KOTAKBANK.NS','AXISBANK.NS','BAJFINANCE.NS','ASIANPAINT.NS','MARUTI.NS','TITAN.NS','NESTLEIND.NS','WIPRO.NS','HCLTECH.NS','ULTRACEMCO.NS','SUNPHARMA.NS','ONGC.NS','POWERGRID.NS','NTPC.NS','ADANIENT.NS','ADANIPORTS.NS','BAJAJFINSV.NS','BPCL.NS','BRITANNIA.NS','CIPLA.NS','COALINDIA.NS','DIVISLAB.NS','DRREDDY.NS','EICHERMOT.NS','GRASIM.NS','HDFCLIFE.NS','HEROMOTOCO.NS','HINDALCO.NS','INDUSINDBK.NS','JSWSTEEL.NS','M&M.NS','APOLLOHOSP.NS','SBILIFE.NS','SHRIRAMFIN.NS','TATACONSUM.NS','TATAMOTORS.NS','TATASTEEL.NS','TECHM.NS','TRENT.NS','BAJAJ-AUTO.NS'];
 
 let mktLoaded=false;
 async function loadMkt(){
   mktLoaded=true;
   document.getElementById('dsBar').style.display='flex';
   const now=new Date();
-  document.getElementById('mktT').textContent='Last updated: '+now.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST · '+now.toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata'});
+  document.getElementById('mktT').textContent='Last updated: '+now.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST \u00b7 '+now.toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata'});
   document.getElementById('ds-time').textContent=now.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST';
 
-  // === TRY OFFICIAL NSE SERVER FIRST ===
+  // Try Railway (NSE official) first
   let nseOk=false;
-  if(API_BASE){
-    const nseData=await fromServer('/api/nse/indices');
-    if(nseData?.data && nseData.data.length>0){
-      nseOk=true;
-      setDot('ds-nse',true);
-      // Render Indian indices from NSE official
-      const rows=nseData.data.slice(0,12).map(idx=>{
-        const up=parseFloat(idx.pchg)>=0;
-        return`<tr><td class="t-lbl">${idx.name}</td><td class="t-val">${fN(idx.last)}</td><td>${chgH(idx.pchg)}</td></tr>`;
-      }).join('');
-      document.getElementById('tbl-indian').innerHTML=rows;
-
-      // Gainers/Losers from NSE official
-      const glData=await fromServer('/api/nse/gainers-losers');
-      if(glData){
-        document.getElementById('gCnt').textContent=glData.gCount||'—';
-        document.getElementById('lCnt').textContent=glData.lCount||'—';
-        const glRows=(arr)=>arr.map(s=>`<tr><td class="t-lbl">${s.symbol}</td><td class="t-val">₹${fN(s.ltp)}</td><td>${chgH(s.pchg)}</td></tr>`).join('');
-        document.getElementById('gB').innerHTML=glRows(glData.gainers||[]);
-        document.getElementById('lB').innerHTML=glRows(glData.losers||[]);
-      }
+  const nseD=await fromServer('/api/nse/indices');
+  if(nseD?.data?.length>0){
+    nseOk=true; setDot('ds-nse',true);
+    document.getElementById('tbl-indian').innerHTML=nseD.data.slice(0,12).map(x=>`<tr><td class="t-lbl">${x.name}</td><td class="t-val">${fN(x.last)}</td><td>${chgH(x.pchg)}</td></tr>`).join('');
+    const gl=await fromServer('/api/nse/gainers-losers');
+    if(gl){
+      document.getElementById('gCnt').textContent=gl.gCount||'\u2014';
+      document.getElementById('lCnt').textContent=gl.lCount||'\u2014';
+      const rw=arr=>arr.map(s=>`<tr><td class="t-lbl">${s.symbol}</td><td class="t-val">\u20b9${fN(s.ltp)}</td><td>${chgH(s.pchg)}</td></tr>`).join('');
+      document.getElementById('gB').innerHTML=rw(gl.gainers||[]);
+      document.getElementById('lB').innerHTML=rw(gl.losers||[]);
     }
   }
 
-  // === FALLBACK: Yahoo for Indian indices ===
+  // Yahoo fallback for Indian indices
   if(!nseOk){
     setDot('ds-nse',false);
     let rows='';
-    for(const idx of NSE_YAHOO_MAP){
-      const q=await fromYahoo(idx.sym);
-      if(q) rows+=`<tr><td class="t-lbl">${idx.name}</td><td class="t-val">${fN(q.price)}</td><td>${chgH(q.chg)}</td></tr>`;
-    }
-    document.getElementById('tbl-indian').innerHTML=rows||'<tr><td colspan="3" style="padding:14px;text-align:center;color:var(--muted);">Data unavailable</td></tr>';
-
-    // Yahoo fallback for gainers/losers
-    const nifty50=['RELIANCE.NS','TCS.NS','HDFCBANK.NS','BHARTIARTL.NS','ICICIBANK.NS','INFOSYS.NS','SBIN.NS','HINDUNILVR.NS','ITC.NS','LT.NS','KOTAKBANK.NS','AXISBANK.NS','BAJFINANCE.NS','ASIANPAINT.NS','MARUTI.NS','TITAN.NS','NESTLEIND.NS','WIPRO.NS','HCLTECH.NS','ULTRACEMCO.NS','SUNPHARMA.NS','ONGC.NS','POWERGRID.NS','NTPC.NS','ADANIENT.NS','ADANIPORTS.NS','BAJAJFINSV.NS','BPCL.NS','BRITANNIA.NS','CIPLA.NS','COALINDIA.NS','DIVISLAB.NS','DRREDDY.NS','EICHERMOT.NS','GRASIM.NS','HDFCLIFE.NS','HEROMOTOCO.NS','HINDALCO.NS','INDUSINDBK.NS','JSWSTEEL.NS','M&M.NS','APOLLOHOSP.NS','SBILIFE.NS','SHRIRAMFIN.NS','TATACONSUM.NS','TATAMOTORS.NS','TATASTEEL.NS','TECHM.NS','TRENT.NS','BAJAJ-AUTO.NS'];
+    for(const x of IND_SYMS){const q=await fromYahoo(x.sym);if(q)rows+=`<tr><td class="t-lbl">${x.name}</td><td class="t-val">${fN(q.price)}</td><td>${chgH(q.chg)}</td></tr>`;}
+    document.getElementById('tbl-indian').innerHTML=rows||'<tr><td colspan="3" style="padding:14px;text-align:center;color:var(--muted);">Market closed or data unavailable</td></tr>';
+    // Gainers/Losers from Yahoo
     const res=[];
-    for(let i=0;i<nifty50.length;i+=5){
-      const batch=await Promise.all(nifty50.slice(i,i+5).map(sym=>fromYahoo(sym).then(q=>q?{sym,price:q.price,chg:q.chg}:null)));
-      res.push(...batch.filter(Boolean));
+    for(let i=0;i<N50.length;i+=5){
+      const b=await Promise.all(N50.slice(i,i+5).map(s=>fromYahoo(s).then(q=>q?{sym:s,price:q.price,chg:q.chg}:null)));
+      res.push(...b.filter(Boolean));
     }
-    const gainers=res.filter(s=>s.chg>0).sort((a,b)=>b.chg-a.chg);
-    const losers=res.filter(s=>s.chg<0).sort((a,b)=>a.chg-b.chg);
-    document.getElementById('gCnt').textContent=gainers.length;
-    document.getElementById('lCnt').textContent=losers.length;
-    const glR=arr=>arr.slice(0,5).map(s=>`<tr><td class="t-lbl">${s.sym.replace('.NS','')}</td><td class="t-val">₹${fN(s.price)}</td><td>${chgH(s.chg)}</td></tr>`).join('');
-    document.getElementById('gB').innerHTML=glR(gainers)||'<tr><td colspan="3" style="padding:12px;text-align:center;color:var(--muted);">No data</td></tr>';
-    document.getElementById('lB').innerHTML=glR(losers)||'<tr><td colspan="3" style="padding:12px;text-align:center;color:var(--muted);">No data</td></tr>';
+    const gn=res.filter(s=>s.chg>0).sort((a,b)=>b.chg-a.chg);
+    const ls=res.filter(s=>s.chg<0).sort((a,b)=>a.chg-b.chg);
+    document.getElementById('gCnt').textContent=gn.length;
+    document.getElementById('lCnt').textContent=ls.length;
+    const rw=arr=>arr.slice(0,5).map(s=>`<tr><td class="t-lbl">${s.sym.replace('.NS','')}</td><td class="t-val">\u20b9${fN(s.price)}</td><td>${chgH(s.chg)}</td></tr>`).join('');
+    document.getElementById('gB').innerHTML=rw(gn)||'<tr><td colspan="3" style="padding:12px;text-align:center;color:var(--muted);">No data</td></tr>';
+    document.getElementById('lB').innerHTML=rw(ls)||'<tr><td colspan="3" style="padding:12px;text-align:center;color:var(--muted);">No data</td></tr>';
   }
 
-  // === BSE DATA ===
+  // BSE
   let bseOk=false;
-  if(API_BASE){
-    const bseData=await fromServer('/api/bse/sensex');
-    if(bseData?.data?.length>0){
-      bseOk=true;
-      setDot('ds-bse',true);
-      const rows=bseData.data.slice(0,10).map(idx=>`<tr><td class="t-lbl">${idx.name}</td><td class="t-val">${fN(idx.last)}</td><td>${chgH(idx.pchg)}</td></tr>`).join('');
-      document.getElementById('tbl-bse').innerHTML=rows;
-    }
+  const bseD=await fromServer('/api/bse/sensex');
+  if(bseD?.data?.length>0){
+    bseOk=true; setDot('ds-bse',true);
+    document.getElementById('tbl-bse').innerHTML=bseD.data.slice(0,10).map(x=>`<tr><td class="t-lbl">${x.name}</td><td class="t-val">${fN(x.last)}</td><td>${chgH(x.pchg)}</td></tr>`).join('');
   }
   if(!bseOk){
     setDot('ds-bse',false);
     const q=await fromYahoo('^BSESN');
-    document.getElementById('tbl-bse').innerHTML=q
-      ?`<tr><td class="t-lbl">Sensex</td><td class="t-val">${fN(q.price)}</td><td>${chgH(q.chg)}</td></tr><tr><td colspan="3" style="padding:8px 14px;font-size:.7rem;color:var(--muted);">Deploy server.js for full BSE sectoral data from bseindia.com</td></tr>`
-      :'<tr><td colspan="3" style="padding:14px;text-align:center;color:var(--muted);">Data unavailable</td></tr>';
+    document.getElementById('tbl-bse').innerHTML=q?`<tr><td class="t-lbl">Sensex</td><td class="t-val">${fN(q.price)}</td><td>${chgH(q.chg)}</td></tr>`:'<tr><td colspan="3" style="padding:14px;text-align:center;color:var(--muted);">Data unavailable</td></tr>';
   }
 
-  // === GLOBAL INDICES & COMMODITIES (Yahoo Finance — NYSE/LSE/CME official) ===
-  let globalOk=0;
-  for(const g of GLOBAL_MAP){
+  // Global indices + commodities (Yahoo)
+  let gok=0;
+  for(const g of GLB){
     const q=await fromYahoo(g.sym);
     if(q){
-      globalOk++;
-      const ve=document.getElementById('s-'+g.id)||document.getElementById('c-'+g.id);
-      const ce=document.getElementById('sc-'+g.id)||document.getElementById('cc-'+g.id);
-      if(ve)ve.textCo
+      gok++;
+      const vid='s-'+g.id, cid='sc-'+g.id, vid2='c-'+g.id, cid2='cc-'+g.id;
+      const ve=document.getElementById(vid)||document.getElementById(vid2);
+      const ce=document.getElementById(cid)||document.getElementById(cid2);
+      if(ve)ve.textContent=(g.p||'')+fN(q.price);
+      if(ce)ce.innerHTML=chgH(q.chg);
+    }
+  }
+  setDot('ds-global',gok>5);
+}
+
+// ── INIT ──
+loadStrip();
+setInterval(()=>{loadStrip();if(mktLoaded){mktLoaded=false;loadMkt();}},5*60*1000);
+</script>
+</body>
+</html>
