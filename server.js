@@ -2,14 +2,14 @@
 // FINOBASH MARKET DATA PROXY SERVER
 // Node.js + Express — fetches from NSE, BSE, Yahoo Finance
 // Deploy on: Railway / Render / Fly.io (free tier)
-// Run: node server.js  |  PORT defaults to 3001
+// Run: node server.js  |  PORT defaults to 8080 (Railway uses PORT env var)
 // ═══════════════════════════════════════════════════════════════════
 
 const express = require('express');
 const https   = require('https');
 const http    = require('http');
 const app     = express();
-const PORT    = process.env.PORT || 3001;
+const PORT    = process.env.PORT || 8080;
 
 // ── CORS: allow your Netlify frontend ──
 app.use((req, res, next) => {
