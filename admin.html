@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinoBash Admin — Publish Articles</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090d;--bg2:#0b0e14;--card:#10151f;--card2:#141b26;
+  --gold:#d4a843;--gold2:#edc55a;--gdim:rgba(212,168,67,0.09);
+  --green:#16a34a;--red:#dc2626;--text:#ddd8ce;--muted:#5e6b7a;
+  --bdr:rgba(212,168,67,0.15);--bdr2:rgba(255,255,255,0.06);
+  --B:'Outfit',sans-serif;--M:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--B);font-size:14px;line-height:1.6;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--gold);}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;}
+.login-box{background:var(--card);border:1px solid var(--bdr2);border-radius:6px;padding:48px 40px;width:360px;text-align:center;}
+.login-logo{display:inline-flex;align-items:center;border-radius:4px;border:1.5px solid var(--gold);padding:5px 13px;font-family:var(--B);font-size:1.05rem;font-weight:700;letter-spacing:.06em;margin-bottom:24px;}
+.login-logo span:first-child{color:#fff;}
+.login-logo span:last-child{color:var(--gold);}
+.login-box h2{font-size:1rem;font-weight:600;margin-bottom:6px;}
+.login-box p{color:var(--muted);font-size:.78rem;margin-bottom:24px;}
+.login-box input{width:100%;background:var(--bg);border:1px solid var(--bdr2);color:var(--text);padding:10px 13px;border-radius:3px;font-family:var(--B);font-size:.84rem;outline:none;margin-bottom:10px;transition:border-color .2s;}
+.login-box input:focus{border-color:var(--gold);}
+.login-btn{width:100%;background:var(--gold);color:#07090d;border:none;padding:11px;font-family:var(--B);font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;cursor:pointer;}
+.login-btn:hover{background:var(--gold2);}
+.login-err{color:var(--red);font-size:.74rem;margin-top:8px;display:none;}
+
+/* LAYOUT */
+#app{display:none;}
+header{background:var(--card);border-bottom:1px solid var(--bdr2);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;}
+.h-logo{display:inline-flex;align-items:center;border-radius:4px;border:1.5px solid var(--gold);padding:4px 11px;font-family:var(--B);font-size:.9rem;font-weight:700;letter-spacing:.06em;}
+.h-logo span:first-child{color:#fff;}
+.h-logo span:last-child{color:var(--gold);}
+.h-right{display:flex;align-items:center;gap:12px;}
+.h-tag{font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--bg2);border:1px solid var(--bdr2);padding:3px 9px;border-radius:2px;}
+.logout-btn{background:none;border:1px solid var(--bdr2);color:var(--muted);padding:5px 12px;border-radius:3px;cursor:pointer;font-family:var(--B);font-size:.72rem;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+.main{display:grid;grid-template-columns:1fr 380px;gap:0;min-height:calc(100vh - 57px);}
+
+/* EDITOR PANEL */
+.editor-panel{padding:32px;border-right:1px solid var(--bdr2);}
+.ep-title{font-size:1.1rem;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+.ep-title span{font-size:.7rem;font-weight:500;color:var(--muted);font-family:var(--M);}
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--bg);border:1px solid var(--bdr2);color:var(--text);padding:9px 12px;border-radius:3px;font-family:var(--B);font-size:.84rem;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);}
+.fg textarea{resize:vertical;min-height:280px;font-size:.82rem;line-height:1.7;}
+.fg select option{background:var(--bg);}
+.char-count{font-size:.6rem;color:var(--muted);font-family:var(--M);text-align:right;margin-top:3px;}
+.pub-row{display:flex;gap:10px;align-items:center;margin-top:4px;}
+.pub-btn{background:var(--gold);color:#07090d;border:none;padding:10px 28px;font-family:var(--B);font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:background .2s;}
+.pub-btn:hover{background:var(--gold2);}
+.pub-btn:disabled{opacity:.5;cursor:not-allowed;}
+.clr-btn{background:none;border:1px solid var(--bdr2);color:var(--muted);padding:10px 16px;border-radius:3px;cursor:pointer;font-family:var(--B);font-size:.78rem;}
+.clr-btn:hover{border-color:var(--red);color:var(--red);}
+.pub-ok{display:none;padding:10px 14px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);border-radius:3px;color:var(--green);font-size:.76rem;margin-top:10px;}
+.pub-err{display:none;padding:10px 14px;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);border-radius:3px;color:var(--red);font-size:.76rem;margin-top:10px;}
+
+/* PILLAR BADGE */
+.p-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:2px;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.pb-inv{background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);color:var(--gold);}
+.pb-pf{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#22c55e;}
+.pb-mm{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);color:#a78bfa;}
+.pb-nt{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#60a5fa;}
+.pb-mb{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;}
+
+/* ARTICLES LIST */
+.list-panel{padding:24px;background:var(--bg2);overflow-y:auto;max-height:calc(100vh - 57px);}
+.lp-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.lp-hd h3{font-size:.9rem;font-weight:600;}
+.art-count{font-family:var(--M);font-size:.64rem;color:var(--muted);}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.f-chip{padding:4px 10px;border-radius:20px;font-size:.62rem;font-weight:600;letter-spacing:.06em;cursor:pointer;border:1px solid var(--bdr2);color:var(--muted);background:var(--card);transition:all .15s;}
+.f-chip.on{border-color:var(--gold);color:var(--gold);background:var(--gdim);}
+.art-card{background:var(--card);border:1px solid var(--bdr2);border-radius:4px;padding:14px;margin-bottom:8px;transition:border-color .2s;}
+.art-card:hover{border-color:var(--bdr);}
+.art-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.art-title{font-size:.84rem;font-weight:600;line-height:1.35;cursor:pointer;}
+.art-title:hover{color:var(--gold);}
+.art-meta{font-size:.62rem;color:var(--muted);font-family:var(--M);margin-top:4px;}
+.art-preview{font-size:.74rem;color:var(--muted);line-height:1.5;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.art-actions{display:flex;gap:5px;flex-shrink:0;}
+.aa-btn{background:none;border:1px solid var(--bdr2);color:var(--muted);padding:3px 8px;border-radius:2px;cursor:pointer;font-size:.62rem;transition:all .15s;}
+.aa-btn:hover.edit{border-color:var(--gold);color:var(--gold);}
+.aa-btn:hover.del{border-color:var(--red);color:var(--red);}
+.empty-state{padding:40px 20px;text-align:center;color:var(--muted);font-size:.78rem;}
+.empty-state div{font-size:2rem;margin-bottom:10px;}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px;}
+.stat{background:var(--card);border:1px solid var(--bdr2);border-radius:3px;padding:10px;text-align:center;}
+.stat-n{font-family:var(--M);font-size:1.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.stat-l{font-size:.55rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:3px;}
+
+@media(max-width:900px){
+  .main{grid-template-columns:1fr;}
+  .list-panel{max-height:none;border-top:1px solid var(--bdr2);}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><span>Fino</span><span>Bash</span></div>
+    <h2>Admin Panel</h2>
+    <p>Enter password to manage articles</p>
+    <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Login →</button>
+    <p class="login-err" id="loginErr">Incorrect password. Try again.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="h-logo"><span>Fino</span><span>Bash</span></div>
+    <div class="h-right">
+      <span class="h-tag">Admin Panel</span>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- EDITOR -->
+    <div class="editor-panel">
+      <div class="ep-title">
+        ✍️ Write Article
+        <span id="editingLabel"></span>
+      </div>
+
+      <div class="fg">
+        <label>Article Title *</label>
+        <input type="text" id="aTitle" placeholder="e.g. Share price higher or lower the better?">
+      </div>
+      <div class="fg">
+        <label>Pillar *</label>
+        <select id="aPillar">
+          <option value="">Select pillar...</option>
+          <option value="Investing">📈 Investing</option>
+          <option value="Personal Finance">💰 Personal Finance</option>
+          <option value="Money Mindset">🧠 Money Mindset</option>
+          <option value="News & Trends">📰 News & Trends</option>
+          <option value="Myth Busting">🔍 Myth Busting</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Content *</label>
+        <textarea id="aContent" placeholder="Write your article here...&#10;&#10;Use blank lines to separate paragraphs.&#10;&#10;Tips:&#10;- Start with a hook&#10;- Keep paragraphs short&#10;- End with a key takeaway" oninput="updateCount()"></textarea>
+        <div class="char-count"><span id="charCount">0</span> characters</div>
+      </div>
+
+      <div class="pub-row">
+        <button class="pub-btn" id="pubBtn" onclick="publishArticle()">Publish Article →</button>
+        <button class="clr-btn" onclick="clearForm()">Clear</button>
+      </div>
+      <div class="pub-ok" id="pubOk"></div>
+      <div class="pub-err" id="pubErr"></div>
+    </div>
+
+    <!-- ARTICLES LIST -->
+    <div class="list-panel">
+      <div class="lp-hd">
+        <h3>Published Articles</h3>
+        <span class="art-count" id="artCount">0 articles</span>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">Total</div></div>
+        <div class="stat"><div class="stat-n" id="st-inv">0</div><div class="stat-l">Investing</div></div>
+        <div class="stat"><div class="stat-n" id="st-pf">0</div><div class="stat-l">Personal</div></div>
+        <div class="stat"><div class="stat-n" id="st-mm">0</div><div class="stat-l">Mindset</div></div>
+        <div class="stat"><div class="stat-n" id="st-mb">0</div><div class="stat-l">Myth</div></div>
+      </div>
+
+      <div class="filter-row">
+        <span class="f-chip on" onclick="filterBy('all',this)">All</span>
+        <span class="f-chip" onclick="filterBy('Investing',this)">📈 Investing</span>
+        <span class="f-chip" onclick="filterBy('Personal Finance',this)">💰 Personal Finance</span>
+        <span class="f-chip" onclick="filterBy('Money Mindset',this)">🧠 Mindset</span>
+        <span class="f-chip" onclick="filterBy('News & Trends',this)">📰 News</span>
+        <span class="f-chip" onclick="filterBy('Myth Busting',this)">🔍 Myth</span>
+      </div>
+
+      <div id="artList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const ADMIN_PW = 'finoBash@0987';  // Change this to your preferred password
+
+// ── PILLAR CONFIG ──
+const PILLARS = {
+  'Investing':       {ico:'📈', cls:'pb-inv'},
+  'Personal Finance':{ico:'💰', cls:'pb-pf'},
+  'Money Mindset':   {ico:'🧠', cls:'pb-mm'},
+  'News & Trends':   {ico:'📰', cls:'pb-nt'},
+  'Myth Busting':    {ico:'🔍', cls:'pb-mb'},
+};
+
+// ── AUTH ──
+let authed = false;
+function doLogin(){
+  const pw = document.getElementById('pwInput').value;
+  if(pw === ADMIN_PW){
+    authed = true;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadArticles();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+  }
+}
+function doLogout(){
+  authed = false;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pwInput').value = '';
+}
+
+// ── STORAGE HELPERS ──
+async function getArticles(){
+  try{
+    const r = await window.storage.get('finobash:articles');
+    return r ? JSON.parse(r.value) : [];
+  } catch { return []; }
+}
+async function saveArticles(arr){
+  await window.storage.set('finobash:articles', JSON.stringify(arr), true); // shared=true so main site can read
+}
+
+// ── CURRENT FILTER ──
+let currentFilter = 'all';
+let editingId = null;
+
+// ── FORM ──
+function updateCount(){
+  document.getElementById('charCount').textContent = document.getElementById('aContent').value.length;
+}
+function clearForm(){
+  document.getElementById('aTitle').value = '';
+  document.getElementById('aPillar').value = '';
+  document.getElementById('aContent').value = '';
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('pubOk').style.display = 'none';
+  document.getElementById('pubErr').style.display = 'none';
+  document.getElementById('editingLabel').textContent = '';
+  document.getElementById('pubBtn').textContent = 'Publish Article →';
+  editingId = null;
+}
+
+// ── PUBLISH ──
+async function publishArticle(){
+  const title   = document.getElementById('aTitle').value.trim();
+  const pillar  = document.getElementById('aPillar').value;
+  const content = document.getElementById('aContent').value.trim();
+
+  if(!title || !pillar || !content){
+    const err = document.getElementById('pubErr');
+    err.textContent = 'Please fill in all fields — Title, Pillar and Content.';
+    err.style.display = 'block';
+    setTimeout(()=>err.style.display='none', 3000);
+    return;
+  }
+
+  document.getElementById('pubBtn').disabled = true;
+  const articles = await getArticles();
+
+  if(editingId){
+    // UPDATE existing
+    const idx = articles.findIndex(a=>a.id===editingId);
+    if(idx !== -1){
+      articles[idx] = {...articles[idx], title, pillar, content, updatedAt: Date.now()};
+    }
+  } else {
+    // NEW article
+    const article = {
+      id: 'art_' + Date.now(),
+      title,
+      pillar,
+      content,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    articles.unshift(article); // newest first
+  }
+
+  await saveArticles(articles);
+
+  const ok = document.getElementById('pubOk');
+  ok.textContent = editingId ? '✅ Article updated successfully!' : '✅ Article published! It will appear on the homepage automatically.';
+  ok.style.display = 'block';
+  setTimeout(()=>ok.style.display='none', 4000);
+
+  clearForm();
+  document.getElementById('pubBtn').disabled = false;
+  loadArticles();
+}
+
+// ── EDIT ──
+async function editArticle(id){
+  const articles = await getArticles();
+  const a = articles.find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('aTitle').value = a.title;
+  document.getElementById('aPillar').value = a.pillar;
+  document.getElementById('aContent').value = a.content;
+  updateCount();
+  editingId = id;
+  document.getElementById('editingLabel').textContent = '— Editing';
+  document.getElementById('pubBtn').textContent = 'Update Article →';
+  window.scrollTo(0, 0);
+}
+
+// ── DELETE ──
+async function deleteArticle(id){
+  if(!confirm('Delete this article? This cannot be undone.')) return;
+  const articles = await getArticles();
+  await saveArticles(articles.filter(a=>a.id!==id));
+  loadArticles();
+}
+
+// ── FILTER ──
+function filterBy(cat, el){
+  currentFilter = cat;
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderList();
+}
+
+// ── LOAD & RENDER ──
+let allArticles = [];
+async function loadArticles(){
+  allArticles = await getArticles();
+  updateStats();
+  renderList();
+}
+
+function updateStats(){
+  document.getElementById('st-total').textContent = allArticles.length;
+  document.getElementById('st-inv').textContent  = allArticles.filter(a=>a.pillar==='Investing').length;
+  document.getElementById('st-pf').textContent   = allArticles.filter(a=>a.pillar==='Personal Finance').length;
+  document.getElementById('st-mm').textContent   = allArticles.filter(a=>a.pillar==='Money Mindset').length;
+  document.getElementById('st-mb').textContent   = allArticles.filter(a=>a.pillar==='Myth Busting').length;
+  document.getElementById('artCount').textContent = allArticles.length + ' article' + (allArticles.length!==1?'s':'');
+}
+
+function renderList(){
+  const list = document.getElementById('artList');
+  const filtered = currentFilter === 'all' ? allArticles : allArticles.filter(a=>a.pillar===currentFilter);
+
+  if(!filtered.length){
+    list.innerHTML = `<div class="empty-state"><div>📝</div>${currentFilter==='all'?'No articles yet. Write your first one!':'No articles in this pillar yet.'}</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(a=>{
+    const p = PILLARS[a.pillar] || {ico:'📄',cls:'pb-inv'};
+    const date = new Date(a.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const preview = a.content.replace(/\n/g,' ').slice(0,100) + '...';
+    return `
+    <div class="art-card" id="card-${a.id}">
+      <div class="art-card-top">
+        <div style="flex:1;">
+          <span class="p-badge ${p.cls}">${p.ico} ${a.pillar}</span>
+          <div class="art-title" onclick="editArticle('${a.id}')">${a.title}</div>
+          <div class="art-meta">${date} · ${a.content.length} chars · ${Math.ceil(a.content.split(' ').length/200)} min read</div>
+        </div>
+        <div class="art-actions">
+          <button class="aa-btn edit" onclick="editArticle('${a.id}')">Edit</button>
+          <button class="aa-btn del" onclick="deleteArticle('${a.id}')">Del</button>
+        </div>
+      </div>
+      <div class="art-preview">${preview}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── KEYBOARD SHORTCUTS ──
+document.addEventListener('keydown', e=>{
+  if(e.ctrlKey && e.key==='Enter') publishArticle();
+});
+</script>
+</body>
+</html>
