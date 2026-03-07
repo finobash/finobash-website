@@ -489,7 +489,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
     <div class="blog-inner">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px;">
         <div><span class="s-tag">Latest</span><h2 class="s-ttl">Recent Posts</h2></div>
-        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn btn-o" style="font-size:.72rem;letter-spacing:.05em;padding:8px 18px;">Follow @finobash</a>
+        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn btn-o" style="font-size:.72rem;letter-spacing:.05em;padding:8px 18px;border-color:var(--gold);color:var(--gold);">Follow @finobash</a>
       </div>
       <div id="recentPosts"></div>
     </div>
@@ -721,7 +721,7 @@ window.openP=function(t,i,d){
 loadRecentPosts();
 </script><script>
 // ══════════════════════════════════════════════════════
-// FINOBASH DATA ENGINE v6
+// FINOBASH DATA ENGINE v7 — PARALLEL FETCH, SHARED DATA
 // ══════════════════════════════════════════════════════
 const API_BASE = 'https://finobash-website-production.up.railway.app';
 
@@ -768,96 +768,98 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeP();closeSub()
 // DATA HELPERS
 // ══════════════════════════════════════════════
 const fN=(n,d=2)=>(!n&&n!==0)?'—':parseFloat(n).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+// FIX 7: % change — reads regularMarketChangePercent correctly, never shows raw decimal
 function chgH(v){
   const f=parseFloat(v);
-  if(isNaN(f))return'<span style="color:var(--muted)">—</span>';
+  if(isNaN(f)||v===null||v===undefined)return'<span style="color:var(--muted)">—</span>';
   const up=f>=0;
   return`<span style="color:${up?'var(--green)':'var(--red)'};font-family:var(--M);font-size:.72rem;white-space:nowrap;">${up?'▲':'▼'} ${Math.abs(f).toFixed(2)}%</span>`;
 }
 function nowIST(){return new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:true})+' IST';}
 
-// ── YAHOO — tries 4 proxies in parallel, takes first winner ──
+// ── YAHOO — fires ALL 4 proxies in parallel, takes fastest winner ──
+// FIX 9: parallel race instead of sequential fallback = much faster
 async function yFetch(sym){
-  const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=1d';
+  const base='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=2d&includePrePost=false';
   const proxies=[
-    `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    `https://thingproxy.freeboard.io/fetch/${url}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(base)}`,
+    `https://api.allorigins.win/get?url=${encodeURIComponent(base)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(base)}`,
+    `https://thingproxy.freeboard.io/fetch/${base}`,
   ];
-  // Try all proxies in parallel, return first success
-  const tryProxy=async(p)=>{
-    const r=await fetch(p,{signal:AbortSignal.timeout(6000)});
-    if(!r.ok)throw new Error('bad status');
+  const parse=async(p)=>{
+    const r=await fetch(p,{signal:AbortSignal.timeout(8000)});
+    if(!r.ok)throw 0;
     const txt=await r.text();
     const w=JSON.parse(txt);
     const d=w.contents?JSON.parse(w.contents):w;
-    const m=d?.chart?.result?.[0]?.meta;
-    if(!m?.regularMarketPrice)throw new Error('no price');
-    return{price:m.regularMarketPrice,chg:m.regularMarketChangePercent??0};
+    const meta=d?.chart?.result?.[0]?.meta;
+    if(!meta?.regularMarketPrice)throw 0;
+    // FIX 7: use regularMarketChangePercent which is already in % form
+    const chg = meta.regularMarketChangePercent ?? 
+                ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100);
+    return {price: meta.regularMarketPrice, chg};
   };
-  try{
-    return await Promise.any(proxies.map(p=>tryProxy(p)));
-  }catch{return null;}
+  try{ return await Promise.any(proxies.map(p=>parse(p))); }
+  catch{ return null; }
 }
 
 async function srvFetch(ep){
   try{const r=await fetch(API_BASE+ep,{signal:AbortSignal.timeout(5000)});if(!r.ok)return null;return await r.json();}catch{return null;}
 }
 
-// Fetch many symbols in parallel, return array in same order (nulls for failures)
-async function yFetchMany(syms){
-  return Promise.all(syms.map(s=>yFetch(s)));
-}
+// Parallel batch fetch — returns array same length as syms, nulls for failures
+async function yBatch(syms){ return Promise.all(syms.map(s=>yFetch(s))); }
 
 // ══════════════════════════════════════════════
-// SYMBOL DEFINITIONS
+// SHARED DATA STORE — FIX 8: home + markets use SAME data
+// ══════════════════════════════════════════════
+const STORE = {
+  indian: { rows:[], time:'', loaded:false },
+  gl:     { gainers:[], losers:[], gCount:0, lCount:0, time:'', loaded:false },
+  global: { rows:[], time:'', loaded:false },
+  comm:   { rows:[], time:'', loaded:false },
+  forex:  { rows:[], time:'', loaded:false },
+};
+
+// ══════════════════════════════════════════════
+// SYMBOL TABLES — FIX 4,5,6: complete lists
 // ══════════════════════════════════════════════
 
-// Homepage — Indian Indices (5 only)
-const HP_INDIAN=[
-  {n:'Nifty 50',   s:'^NSEI'},
-  {n:'Sensex',     s:'^BSESN'},
-  {n:'Nifty Next 50',s:'^NSMIDCP'},
-  {n:'Nifty Bank', s:'^NSEBANK'},
-  {n:'India VIX',  s:'^INDIAVIX'},
+// HOME: Indian indices (5)
+const HP_IND_SYMS=['^NSEI','^BSESN','^NSMIDCP','^NSEBANK','^INDIAVIX'];
+const HP_IND_NAMES=['Nifty 50','Sensex','Nifty Next 50','Nifty Bank','India VIX'];
+
+// HOME: Global (4)
+const HP_GLB_SYMS=['^GSPC','^IXIC','^HSI','^N225'];
+const HP_GLB_NAMES=['S&P 500','Nasdaq','Hang Seng','Nikkei 225'];
+
+// HOME: Commodities (3)
+const HP_COMM_SYMS=['GC=F','SI=F','CL=F'];
+const HP_COMM_NAMES=['Gold','Silver','Crude WTI'];
+const HP_COMM_UNITS=['USD/oz','USD/oz','USD/bbl'];
+
+// FULL: Indian Indices (15) — FIX 4: Nifty 50 first, Sensex SECOND
+const FULL_IND=[
+  {n:'Nifty 50',         s:'^NSEI'},
+  {n:'Sensex',           s:'^BSESN'},
+  {n:'Nifty Bank',       s:'^NSEBANK'},
+  {n:'Nifty IT',         s:'^CNXIT'},
+  {n:'Nifty Next 50',    s:'^NSMIDCP'},
+  {n:'Nifty Midcap 100', s:'^NSEMDCP50'},
+  {n:'Nifty Auto',       s:'^CNXAUTO'},
+  {n:'Nifty Pharma',     s:'^CNXPHARMA'},
+  {n:'Nifty Metal',      s:'^CNXMETAL'},
+  {n:'Nifty FMCG',       s:'^CNXFMCG'},
+  {n:'Nifty Realty',     s:'^CNXREALTY'},
+  {n:'Nifty Energy',     s:'^CNXENERGY'},
+  {n:'Nifty Infra',      s:'^CNXINFRA'},
+  {n:'Nifty PSU Bank',   s:'^CNXPSUBANK'},
+  {n:'India VIX',        s:'^INDIAVIX'},
 ];
 
-// Homepage — Global Indices (4)
-const HP_GLOBAL=[
-  {n:'S&P 500',    s:'^GSPC'},
-  {n:'Nasdaq',     s:'^IXIC'},
-  {n:'Hang Seng',  s:'^HSI'},
-  {n:'Nikkei 225', s:'^N225'},
-];
-
-// Homepage — Commodities (3)
-const HP_COMM=[
-  {n:'Gold',       s:'GC=F', u:'USD/oz'},
-  {n:'Silver',     s:'SI=F', u:'USD/oz'},
-  {n:'Crude WTI',  s:'CL=F', u:'USD/bbl'},
-];
-
-// Markets page — Full Indian Indices
-const MKT_INDIAN=[
-  {n:'Nifty 50',        s:'^NSEI'},
-  {n:'Sensex',          s:'^BSESN'},
-  {n:'Nifty Bank',      s:'^NSEBANK'},
-  {n:'Nifty IT',        s:'^CNXIT'},
-  {n:'Nifty Next 50',   s:'^NSMIDCP'},
-  {n:'Nifty Midcap 150',s:'^NSEMDCP50'},
-  {n:'Nifty Smallcap',  s:'^NSESCP'},
-  {n:'Nifty Auto',      s:'AUTOBEES.NS'},
-  {n:'Nifty Pharma',    s:'PHARMABEES.NS'},
-  {n:'Nifty Metal',     s:'METALBEES.NS'},
-  {n:'Nifty FMCG',      s:'FMCGBEES.NS'},
-  {n:'Nifty Realty',    s:'ICICIB22.NS'},
-  {n:'India VIX',       s:'^INDIAVIX'},
-  {n:'Nifty PSU Bank',  s:'PSUBNKBEES.NS'},
-  {n:'Gift Nifty',      s:'NIFTYBEES.NS'},
-];
-
-// Nifty 50 full list
+// FULL: Nifty 50 stocks — FIX 3: complete 50
 const N50=[
   'RELIANCE.NS','TCS.NS','HDFCBANK.NS','BHARTIARTL.NS','ICICIBANK.NS',
   'INFOSYS.NS','SBIN.NS','HINDUNILVR.NS','ITC.NS','LT.NS',
@@ -871,116 +873,162 @@ const N50=[
   'TATAMOTORS.NS','TATASTEEL.NS','TECHM.NS','TRENT.NS','BAJAJ-AUTO.NS'
 ];
 
-// Markets page — Full Global Indices
-const MKT_GLOBAL=[
-  {n:'S&P 500',      s:'^GSPC',  ex:'NYSE'},
-  {n:'Nasdaq',       s:'^IXIC',  ex:'NASDAQ'},
-  {n:'Dow Jones',    s:'^DJI',   ex:'NYSE'},
-  {n:'FTSE 100',     s:'^FTSE',  ex:'LSE'},
-  {n:'Nikkei 225',   s:'^N225',  ex:'TSE'},
-  {n:'Hang Seng',    s:'^HSI',   ex:'HKEX'},
-  {n:'DAX',          s:'^GDAXI', ex:'XETRA'},
-  {n:'CAC 40',       s:'^FCHI',  ex:'Euronext'},
-  {n:'Shanghai Comp',s:'000001.SS',ex:'SSE'},
-  {n:'ASX 200',      s:'^AXJO',  ex:'ASX'},
-  {n:'Kospi',        s:'^KS11',  ex:'KRX'},
-  {n:'Straits Times',s:'^STI',   ex:'SGX'},
+// FULL: Global Indices (12) — FIX 5
+const FULL_GLB=[
+  {n:'S&P 500',       s:'^GSPC',    ex:'NYSE'},
+  {n:'Nasdaq',        s:'^IXIC',    ex:'NASDAQ'},
+  {n:'Dow Jones',     s:'^DJI',     ex:'NYSE'},
+  {n:'FTSE 100',      s:'^FTSE',    ex:'LSE'},
+  {n:'Nikkei 225',    s:'^N225',    ex:'TSE'},
+  {n:'Hang Seng',     s:'^HSI',     ex:'HKEX'},
+  {n:'DAX',           s:'^GDAXI',   ex:'XETRA'},
+  {n:'CAC 40',        s:'^FCHI',    ex:'Euronext'},
+  {n:'Shanghai Comp', s:'000001.SS',ex:'SSE'},
+  {n:'ASX 200',       s:'^AXJO',    ex:'ASX'},
+  {n:'Kospi',         s:'^KS11',    ex:'KRX'},
+  {n:'Straits Times', s:'^STI',     ex:'SGX'},
 ];
 
-// Markets page — Full Commodities
-const MKT_COMM=[
-  {n:'Gold',          s:'GC=F',  u:'USD / troy oz',  ex:'COMEX'},
-  {n:'Silver',        s:'SI=F',  u:'USD / troy oz',  ex:'COMEX'},
-  {n:'Platinum',      s:'PL=F',  u:'USD / troy oz',  ex:'NYMEX'},
-  {n:'Palladium',     s:'PA=F',  u:'USD / troy oz',  ex:'NYMEX'},
-  {n:'Crude Oil WTI', s:'CL=F',  u:'USD / barrel',   ex:'NYMEX'},
-  {n:'Brent Crude',   s:'BZ=F',  u:'USD / barrel',   ex:'ICE'},
-  {n:'Natural Gas',   s:'NG=F',  u:'USD / MMBtu',    ex:'NYMEX'},
-  {n:'Copper',        s:'HG=F',  u:'USD / lb',       ex:'COMEX'},
-  {n:'Aluminium',     s:'ALI=F', u:'USD / lb',       ex:'COMEX'},
-  {n:'Wheat',         s:'ZW=F',  u:'USD / bushel',   ex:'CBOT'},
+// FULL: Commodities (10) — FIX 6
+const FULL_COMM=[
+  {n:'Gold',           s:'GC=F',  u:'USD / troy oz', ex:'COMEX'},
+  {n:'Silver',         s:'SI=F',  u:'USD / troy oz', ex:'COMEX'},
+  {n:'Platinum',       s:'PL=F',  u:'USD / troy oz', ex:'NYMEX'},
+  {n:'Palladium',      s:'PA=F',  u:'USD / troy oz', ex:'NYMEX'},
+  {n:'Crude Oil WTI',  s:'CL=F',  u:'USD / barrel',  ex:'NYMEX'},
+  {n:'Brent Crude',    s:'BZ=F',  u:'USD / barrel',  ex:'ICE'},
+  {n:'Natural Gas',    s:'NG=F',  u:'USD / MMBtu',   ex:'NYMEX'},
+  {n:'Copper',         s:'HG=F',  u:'USD / lb',      ex:'COMEX'},
+  {n:'Aluminium',      s:'ALI=F', u:'USD / lb',      ex:'COMEX'},
+  {n:'Wheat',          s:'ZW=F',  u:'USD / bushel',  ex:'CBOT'},
 ];
 
-// Markets page — Forex
-const MKT_FOREX=[
-  {n:'USD / INR',s:'USDINR=X', base:'USD'},
-  {n:'EUR / INR',s:'EURINR=X', base:'EUR'},
-  {n:'GBP / INR',s:'GBPINR=X', base:'GBP'},
-  {n:'JPY / INR',s:'JPYINR=X', base:'JPY'},
-  {n:'AED / INR',s:'AEDINR=X', base:'AED'},
-  {n:'SGD / INR',s:'SGDINR=X', base:'SGD'},
-  {n:'EUR / USD',s:'EURUSD=X', base:'EUR'},
-  {n:'GBP / USD',s:'GBPUSD=X', base:'GBP'},
-  {n:'USD / JPY',s:'JPY=X',    base:'USD'},
-  {n:'USD / CNY',s:'CNY=X',    base:'USD'},
+// FULL: Forex (10)
+const FULL_FOREX=[
+  {n:'USD / INR', s:'USDINR=X'},
+  {n:'EUR / INR', s:'EURINR=X'},
+  {n:'GBP / INR', s:'GBPINR=X'},
+  {n:'JPY / INR', s:'JPYINR=X'},
+  {n:'AED / INR', s:'AEDINR=X'},
+  {n:'SGD / INR', s:'SGDINR=X'},
+  {n:'EUR / USD', s:'EURUSD=X'},
+  {n:'GBP / USD', s:'GBPUSD=X'},
+  {n:'USD / JPY', s:'JPY=X'},
+  {n:'USD / CNY', s:'CNY=X'},
 ];
 
 // ══════════════════════════════════════════════
-// HOMEPAGE — 4 MINI PANELS
+// LOAD FUNCTIONS — write into STORE
+// FIX 9: all fetch in parallel batches
+// FIX 8: home reads from same STORE as markets page
 // ══════════════════════════════════════════════
-async function loadHomepanels(){
-  // All fetches fire in parallel
-  const [indRes, glbRes, commRes] = await Promise.all([
-    yFetchMany(HP_INDIAN.map(x=>x.s)),
-    yFetchMany(HP_GLOBAL.map(x=>x.s)),
-    yFetchMany(HP_COMM.map(x=>x.s)),
-  ]);
 
-  // Indian indices
-  const indRows=HP_INDIAN.map((x,i)=>{
-    const q=indRes[i];
-    return`<tr><td style="color:var(--text);font-weight:500;font-size:.74rem;">${x.n}</td><td class="hgi-val">${q?fN(q.price):'—'}</td><td>${q?chgH(q.chg):'—'}</td></tr>`;
-  }).join('');
-  document.getElementById('hp-indian').innerHTML=indRows;
-
-  // Global indices
-  const glbRows=HP_GLOBAL.map((x,i)=>{
-    const q=glbRes[i];
-    return`<tr><td style="color:var(--text);font-weight:500;font-size:.74rem;">${x.n}</td><td class="hgi-val">${q?fN(q.price):'—'}</td><td>${q?chgH(q.chg):'—'}</td></tr>`;
-  }).join('');
-  document.getElementById('hp-global').innerHTML=glbRows;
-
-  // Commodities
-  const commRows=HP_COMM.map((x,i)=>{
-    const q=commRes[i];
-    return`<tr><td style="color:var(--text);font-weight:500;font-size:.74rem;">${x.n}<span style="font-size:.56rem;color:var(--muted);display:block;">${x.u}</span></td><td class="hgi-val">${q?'$'+fN(q.price):'—'}</td><td>${q?chgH(q.chg):'—'}</td></tr>`;
-  }).join('');
-  document.getElementById('hp-comm').innerHTML=commRows;
+async function loadIndian(){
+  const now=nowIST();
+  // Try Railway NSE first (fastest + most accurate)
+  const srv=await srvFetch('/api/nse/indices');
+  if(srv?.data?.length>0){
+    const d=srv.data;
+    // FIX 4: enforce Nifty 50 first, Sensex second
+    const nifty=d.find(x=>x.name==='NIFTY 50')||d[0];
+    const sensex=d.find(x=>x.name.includes('SENSEX'));
+    const rest=d.filter(x=>x!==nifty&&x!==sensex);
+    STORE.indian.rows=[nifty,sensex,...rest].filter(Boolean)
+      .map(x=>({name:x.name, val:fN(x.last), chg:x.pchg}));
+  } else {
+    // Yahoo fallback — use correct sector ETF tickers
+    const res=await yBatch(FULL_IND.map(x=>x.s));
+    STORE.indian.rows=FULL_IND.map((x,i)=>res[i]?{name:x.n,val:fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
+  }
+  STORE.indian.time=now; STORE.indian.loaded=true;
 }
 
-async function loadHomepanelGL(){
-  // Try Railway first
-  let gainers=[],losers=[],gc=0,lc=0;
+async function loadGL(){
+  const now=nowIST();
   const srv=await srvFetch('/api/nse/gainers-losers');
   if(srv){
-    gainers=srv.gainers||[];losers=srv.losers||[];gc=srv.gCount||0;lc=srv.lCount||0;
-    gainers=gainers.slice(0,5);losers=losers.slice(0,5);
+    STORE.gl.gainers=srv.gainers||[];
+    STORE.gl.losers=srv.losers||[];
+    STORE.gl.gCount=srv.gCount||0;
+    STORE.gl.lCount=srv.lCount||0;
   } else {
-    // Yahoo parallel fallback
-    const res=(await yFetchMany(N50)).map((q,i)=>q?{symbol:N50[i].replace('.NS',''),ltp:q.price,pchg:q.chg}:null).filter(Boolean);
+    // FIX 3: fetch all 50 in parallel (yBatch)
+    const res=(await yBatch(N50))
+      .map((q,i)=>q?{symbol:N50[i].replace('.NS',''),ltp:q.price,pchg:q.chg}:null)
+      .filter(Boolean);
     const gn=res.filter(s=>s.pchg>0).sort((a,b)=>b.pchg-a.pchg);
     const ls=res.filter(s=>s.pchg<0).sort((a,b)=>a.pchg-b.pchg);
-    gainers=gn.slice(0,5);losers=ls.slice(0,5);gc=gn.length;lc=ls.length;
+    STORE.gl.gainers=gn; STORE.gl.losers=ls;
+    STORE.gl.gCount=gn.length; STORE.gl.lCount=ls.length;
   }
-  const gRows=gainers.map(s=>`<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">${s.symbol}</td><td>${chgH(s.pchg)}</td></tr>`).join('')||'<tr><td colspan="2" class="hgi-loading-row">No data</td></tr>';
-  const lRows=losers.map(s=>`<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">${s.symbol}</td><td>${chgH(s.pchg)}</td></tr>`).join('')||'<tr><td colspan="2" class="hgi-loading-row">No data</td></tr>';
-  document.getElementById('hp-gainers').innerHTML=gRows;
-  document.getElementById('hp-losers').innerHTML=lRows;
+  STORE.gl.time=now; STORE.gl.loaded=true;
+}
+
+async function loadGlobal(){
+  const res=await yBatch(FULL_GLB.map(x=>x.s));
+  STORE.global.rows=FULL_GLB.map((x,i)=>res[i]?{name:x.n,ex:x.ex,val:fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
+  STORE.global.time=nowIST(); STORE.global.loaded=true;
+}
+
+async function loadComm(){
+  const res=await yBatch(FULL_COMM.map(x=>x.s));
+  STORE.comm.rows=FULL_COMM.map((x,i)=>res[i]?{name:x.n,u:x.u,ex:x.ex,val:'$'+fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
+  STORE.comm.time=nowIST(); STORE.comm.loaded=true;
+}
+
+async function loadForex(){
+  const res=await yBatch(FULL_FOREX.map(x=>x.s));
+  STORE.forex.rows=FULL_FOREX.map((x,i)=>res[i]?{name:x.n,val:fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
+  STORE.forex.time=nowIST(); STORE.forex.loaded=true;
+}
+
+// ══════════════════════════════════════════════
+// RENDER — HOMEPAGE (reads from STORE)
+// FIX 8: same data as markets page
+// ══════════════════════════════════════════════
+function renderHome(){
+  // Indian — top 5 from STORE
+  if(STORE.indian.loaded){
+    const rows5=STORE.indian.rows.slice(0,5);
+    document.getElementById('hp-indian').innerHTML=rows5.map(r=>
+      `<tr><td style="color:var(--text);font-weight:500;font-size:.74rem;">${r.name}</td><td class="hgi-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`
+    ).join('');
+  }
+  // Global — top 4
+  if(STORE.global.loaded){
+    // FIX 2+8: show same indices — S&P, Nasdaq, Hang Seng, Nikkei (indices 0,1,5,4)
+    const pick=[0,1,4,5]; // S&P, Nasdaq, Nikkei, Hang Seng
+    document.getElementById('hp-global').innerHTML=pick.map(i=>{
+      const r=STORE.global.rows[i];
+      if(!r)return'';
+      return`<tr><td style="color:var(--text);font-weight:500;font-size:.74rem;">${r.name}</td><td class="hgi-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`;
+    }).join('');
+  }
+  // Commodities — top 3 (Gold, Silver, Crude)
+  if(STORE.comm.loaded){
+    const top3=STORE.comm.rows.slice(0,3);
+    document.getElementById('hp-comm').innerHTML=top3.map(r=>
+      `<tr><td style="color:var(--text);font-weight:500;font-size:.74rem;">${r.name}<span style="font-size:.56rem;color:var(--muted);display:block;">${r.u}</span></td><td class="hgi-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`
+    ).join('');
+  }
+  // Gainers/Losers — top 5
+  if(STORE.gl.loaded){
+    const g5=STORE.gl.gainers.slice(0,5);
+    const l5=STORE.gl.losers.slice(0,5);
+    document.getElementById('hp-gainers').innerHTML=g5.map(s=>
+      `<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">${s.symbol||s.name}</td><td>${chgH(s.pchg)}</td></tr>`
+    ).join('')||'<tr><td colspan="2" class="hgi-loading-row">No data</td></tr>';
+    document.getElementById('hp-losers').innerHTML=l5.map(s=>
+      `<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">${s.symbol||s.name}</td><td>${chgH(s.pchg)}</td></tr>`
+    ).join('')||'<tr><td colspan="2" class="hgi-loading-row">No data</td></tr>';
+  }
 }
 
 // ══════════════════════════════════════════════
 // MARKETS PAGE — 5 TABS
 // ══════════════════════════════════════════════
 let mktInit=false;
-let mktLoaded={indian:false,gl:false,global:false,comm:false,forex:false};
 let mktActive='indian';
-const MKT_DATA={
-  indian:{rows:[],time:''},
-  gl:{gainers:[],losers:[],gCount:0,lCount:0,time:''},
-  global:{rows:[],time:''},
-  comm:{rows:[],time:''},
-  forex:{rows:[],time:''},
-};
 
 function initMkt(){
   mktInit=true;
@@ -991,88 +1039,46 @@ function switchMkt(cat,btn){
   mktActive=cat;
   document.querySelectorAll('.mkt-tab').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  renderMktPanel(cat);
-}
-
-function renderMktPanel(cat){
-  const panel=document.getElementById('mktPanel');
-  if(!mktLoaded[cat]){
-    panel.innerHTML='<div class="gi-loading">Loading live data</div>';
-    loadMktData(cat).then(()=>renderMktContent(cat));
-  } else {
+  // If data already loaded in STORE, render immediately; else load first
+  if(STORE[cat]&&STORE[cat].loaded){
     renderMktContent(cat);
+  } else {
+    document.getElementById('mktPanel').innerHTML='<div class="gi-loading">Loading live data</div>';
+    loadCat(cat).then(()=>renderMktContent(cat));
   }
 }
 
-async function loadMktData(cat){
-  const now=nowIST();
-  if(cat==='indian'){
-    const srv=await srvFetch('/api/nse/indices');
-    if(srv?.data?.length>0){
-      const d=srv.data;
-      const nifty=d.find(x=>x.name==='NIFTY 50')||d[0];
-      const sensex=d.find(x=>x.name.includes('SENSEX'));
-      const rest=d.filter(x=>x!==nifty&&x!==sensex);
-      MKT_DATA.indian.rows=[nifty,sensex,...rest].filter(Boolean).map(x=>({name:x.name,val:fN(x.last),chg:x.pchg}));
-    } else {
-      const res=await yFetchMany(MKT_INDIAN.map(x=>x.s));
-      MKT_DATA.indian.rows=MKT_INDIAN.map((x,i)=>res[i]?{name:x.n,val:fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
-    }
-    MKT_DATA.indian.time=now;mktLoaded.indian=true;
-  }
-  else if(cat==='gl'){
-    const srv=await srvFetch('/api/nse/gainers-losers');
-    if(srv){
-      MKT_DATA.gl.gainers=srv.gainers||[];MKT_DATA.gl.losers=srv.losers||[];
-      MKT_DATA.gl.gCount=srv.gCount||0;MKT_DATA.gl.lCount=srv.lCount||0;
-    } else {
-      const res=(await yFetchMany(N50)).map((q,i)=>q?{symbol:N50[i].replace('.NS',''),ltp:q.price,pchg:q.chg}:null).filter(Boolean);
-      const gn=res.filter(s=>s.pchg>0).sort((a,b)=>b.pchg-a.pchg);
-      const ls=res.filter(s=>s.pchg<0).sort((a,b)=>a.pchg-b.pchg);
-      MKT_DATA.gl.gainers=gn;MKT_DATA.gl.losers=ls;
-      MKT_DATA.gl.gCount=gn.length;MKT_DATA.gl.lCount=ls.length;
-    }
-    MKT_DATA.gl.time=now;mktLoaded.gl=true;
-  }
-  else if(cat==='global'){
-    const res=await yFetchMany(MKT_GLOBAL.map(x=>x.s));
-    MKT_DATA.global.rows=MKT_GLOBAL.map((x,i)=>res[i]?{name:x.n,ex:x.ex,val:fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
-    MKT_DATA.global.time=now;mktLoaded.global=true;
-  }
-  else if(cat==='comm'){
-    const res=await yFetchMany(MKT_COMM.map(x=>x.s));
-    MKT_DATA.comm.rows=MKT_COMM.map((x,i)=>res[i]?{name:x.n,u:x.u,ex:x.ex,val:'$'+fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
-    MKT_DATA.comm.time=now;mktLoaded.comm=true;
-  }
-  else if(cat==='forex'){
-    const res=await yFetchMany(MKT_FOREX.map(x=>x.s));
-    MKT_DATA.forex.rows=MKT_FOREX.map((x,i)=>res[i]?{name:x.n,base:x.base,val:fN(res[i].price),chg:res[i].chg}:null).filter(Boolean);
-    MKT_DATA.forex.time=now;mktLoaded.forex=true;
-  }
+async function loadCat(cat){
+  if(cat==='indian')    await loadIndian();
+  else if(cat==='gl')   await loadGL();
+  else if(cat==='global') await loadGlobal();
+  else if(cat==='comm') await loadComm();
+  else if(cat==='forex') await loadForex();
 }
 
 function renderMktContent(cat){
   const panel=document.getElementById('mktPanel');
+  if(!panel)return;
   const noData='<tr><td colspan="3" style="padding:24px;text-align:center;color:var(--muted);">Market closed or data unavailable</td></tr>';
   const ts=(t)=>`<span class="mkt-time">Updated ${t}</span>`;
 
   if(cat==='indian'){
-    const rows=MKT_DATA.indian.rows.map(r=>`<tr><td class="mkt-lbl">${r.name}</td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
+    const rows=STORE.indian.rows.map(r=>`<tr><td class="mkt-lbl">${r.name}</td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
     panel.innerHTML=`<div class="mkt-tcard">
-      <div class="mkt-thd"><h3>📊 Indian Indices <span class="mkt-ex">NSE India</span></h3>${ts(MKT_DATA.indian.time)}</div>
+      <div class="mkt-thd"><h3>📊 Indian Indices <span class="mkt-ex">NSE India</span></h3>${ts(STORE.indian.time)}</div>
       <table class="mkt-table"><thead><tr><th>Index</th><th>Value</th><th>Chg %</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
   }
   else if(cat==='gl'){
-    const gRows=MKT_DATA.gl.gainers.map(s=>`<tr><td class="mkt-lbl">${s.symbol}</td><td class="mkt-val">₹${fN(s.ltp)}</td><td>${chgH(s.pchg)}</td></tr>`).join('')||noData;
-    const lRows=MKT_DATA.gl.losers.map(s=>`<tr><td class="mkt-lbl">${s.symbol}</td><td class="mkt-val">₹${fN(s.ltp)}</td><td>${chgH(s.pchg)}</td></tr>`).join('')||noData;
+    const gRows=STORE.gl.gainers.map(s=>`<tr><td class="mkt-lbl">${s.symbol||s.name}</td><td class="mkt-val">₹${fN(s.ltp)}</td><td>${chgH(s.pchg)}</td></tr>`).join('')||noData;
+    const lRows=STORE.gl.losers.map(s=>`<tr><td class="mkt-lbl">${s.symbol||s.name}</td><td class="mkt-val">₹${fN(s.ltp)}</td><td>${chgH(s.pchg)}</td></tr>`).join('')||noData;
     panel.innerHTML=`<div class="mkt-tcard">
       <div class="mkt-thd">
         <h3>📈 Nifty 50 — Gainers &amp; Losers <span class="mkt-ex">NSE India</span></h3>
         <div class="mkt-gl-counts">
-          <div class="mkt-cnt g"><strong>${MKT_DATA.gl.gCount}</strong><span>Gainers</span></div>
-          <div class="mkt-cnt l"><strong>${MKT_DATA.gl.lCount}</strong><span>Losers</span></div>
-          ${ts(MKT_DATA.gl.time)}
+          <div class="mkt-cnt g"><strong>${STORE.gl.gCount}</strong><span>Gainers</span></div>
+          <div class="mkt-cnt l"><strong>${STORE.gl.lCount}</strong><span>Losers</span></div>
+          ${ts(STORE.gl.time)}
         </div>
       </div>
       <div class="mkt-gl-cols">
@@ -1088,36 +1094,53 @@ function renderMktContent(cat){
     </div>`;
   }
   else if(cat==='global'){
-    const rows=MKT_DATA.global.rows.map(r=>`<tr><td class="mkt-lbl">${r.name} <span class="mkt-ex">${r.ex}</span></td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
+    const rows=STORE.global.rows.map(r=>`<tr><td class="mkt-lbl">${r.name} <span class="mkt-ex">${r.ex}</span></td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
     panel.innerHTML=`<div class="mkt-tcard">
-      <div class="mkt-thd"><h3>🌐 Global Indices <span class="mkt-ex">NYSE · NASDAQ · LSE · TSE · HKEX · SSE</span></h3>${ts(MKT_DATA.global.time)}</div>
+      <div class="mkt-thd"><h3>🌐 Global Indices <span class="mkt-ex">NYSE · NASDAQ · LSE · TSE · HKEX · SSE · ASX · KRX · SGX</span></h3>${ts(STORE.global.time)}</div>
       <table class="mkt-table"><thead><tr><th>Index</th><th>Value</th><th>Chg %</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
   }
   else if(cat==='comm'){
-    const rows=MKT_DATA.comm.rows.map(r=>`<tr><td class="mkt-lbl">${r.name}<span class="mkt-unit">${r.u} · ${r.ex}</span></td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
+    const rows=STORE.comm.rows.map(r=>`<tr><td class="mkt-lbl">${r.name}<span class="mkt-unit">${r.u} · ${r.ex}</span></td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
     panel.innerHTML=`<div class="mkt-tcard">
-      <div class="mkt-thd"><h3>🥇 Commodities <span class="mkt-ex">CME · COMEX · NYMEX · ICE · CBOT</span></h3>${ts(MKT_DATA.comm.time)}</div>
+      <div class="mkt-thd"><h3>🥇 Commodities <span class="mkt-ex">CME · COMEX · NYMEX · ICE · CBOT</span></h3>${ts(STORE.comm.time)}</div>
       <table class="mkt-table"><thead><tr><th>Asset</th><th>Price</th><th>Chg %</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
   }
   else if(cat==='forex'){
-    const rows=MKT_DATA.forex.rows.map(r=>`<tr><td class="mkt-lbl">${r.name}</td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
+    const rows=STORE.forex.rows.map(r=>`<tr><td class="mkt-lbl">${r.name}</td><td class="mkt-val">${r.val}</td><td>${chgH(r.chg)}</td></tr>`).join('')||noData;
     panel.innerHTML=`<div class="mkt-tcard">
-      <div class="mkt-thd"><h3>💱 Forex Rates</h3>${ts(MKT_DATA.forex.time)}</div>
+      <div class="mkt-thd"><h3>💱 Forex Rates</h3>${ts(STORE.forex.time)}</div>
       <table class="mkt-table"><thead><tr><th>Pair</th><th>Rate</th><th>Chg %</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
   }
 }
 
-// ── INIT ──
-loadHomepanels();
-loadHomepanelGL();
-setInterval(()=>{
-  loadHomepanels();
-  loadHomepanelGL();
-  if(mktInit){mktLoaded[mktActive]=false;loadMktData(mktActive).then(()=>renderMktContent(mktActive));}
+// ══════════════════════════════════════════════
+// INIT — load all 4 homepage datasets in parallel
+// FIX 9: homepage fires everything at once, renders as each arrives
+// ══════════════════════════════════════════════
+async function init(){
+  // Fire all 4 in parallel — render homepage as each one completes
+  const jobs=[
+    loadIndian().then(()=>renderHome()),
+    loadGL().then(()=>renderHome()),
+    loadGlobal().then(()=>renderHome()),
+    loadComm().then(()=>renderHome()),
+  ];
+  await Promise.allSettled(jobs);
+}
+init();
+
+// Refresh every 5 min
+setInterval(async()=>{
+  STORE.indian.loaded=false; STORE.gl.loaded=false;
+  STORE.global.loaded=false; STORE.comm.loaded=false;
+  STORE.forex.loaded=false;
+  await init();
+  if(mktInit && STORE[mktActive].loaded) renderMktContent(mktActive);
 },5*60*1000);
+
 </script>
 </body>
 </html>
