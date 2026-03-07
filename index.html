@@ -22,40 +22,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--B);overflow-x:hidd
 /* ── LOGO ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 52px;backdrop-filter:blur(24px);background:rgba(7,9,13,0.93);border-bottom:1px solid var(--bdr2);transition:border-color .3s;}
 
-/* The logo is two solid colour blocks side by side — NO font tricks needed */
+/* LOGO — gold border box, Fino white + Bash gold italic — same everywhere */
 .logo{cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;line-height:1;}
 .logo-badge{
-  display:inline-flex;
-  align-items:stretch;
-  border-radius:5px;
-  overflow:hidden;
-  font-family:var(--F);
-  font-size:1.22rem;
-  font-weight:700;
-  letter-spacing:.03em;
-  box-shadow:0 2px 16px rgba(0,0,0,.5);
+  display:inline-flex;align-items:center;
+  border-radius:4px;border:1.5px solid var(--gold);
+  padding:5px 13px;
+  font-family:var(--F);font-size:1.18rem;font-weight:700;
+  letter-spacing:.04em;line-height:1;
 }
-.logo-w{
-  background:#ffffff;
-  color:#07090d;
-  padding:7px 8px 7px 14px;
-  display:flex;
-  align-items:center;
-}
-.logo-divider{
-  width:3px;
-  background:var(--gold);
-  flex-shrink:0;
-  align-self:stretch;
-}
-.logo-y{
-  background:var(--gold);
-  color:#07090d;
-  padding:7px 14px 7px 8px;
-  display:flex;
-  align-items:center;
-  font-style:italic;
-}
+.logo-w{color:#ffffff;font-style:normal;}
+.logo-divider{display:none;}
+.logo-y{color:var(--gold);font-style:italic;}
 
 /* NAV rest */
 .nav-ul{display:flex;gap:26px;list-style:none;align-items:center;}
@@ -82,19 +60,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* LIVE STRIP */
-.strip{background:var(--card);border-top:1px solid var(--bdr2);border-bottom:1px solid var(--bdr2);overflow:hidden;position:relative;height:40px;}
-.strip-badge{position:absolute;left:0;top:0;bottom:0;background:var(--red);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:5px;padding:0 13px;z-index:2;white-space:nowrap;}
-.strip-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:#fff;animation:blink 1.2s infinite;}
-.strip-track{display:inline-flex;animation:scrollX 50s linear infinite;height:40px;align-items:center;padding-left:90px;white-space:nowrap;}
-.strip-track:hover{animation-play-state:paused;}
-.si{display:inline-flex;align-items:center;gap:7px;padding:0 20px;border-right:1px solid var(--bdr2);height:100%;}
-.si-src{font-size:.48rem;color:var(--muted);font-family:var(--M);opacity:.7;}
-.si-n{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
-.si-p{font-family:var(--M);font-size:.78rem;font-weight:500;color:var(--text);}
-.si-u{font-family:var(--M);font-size:.68rem;color:var(--green);}
-.si-d{font-family:var(--M);font-size:.68rem;color:var(--red);}
-@keyframes scrollX{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+/* live strip removed */
 
 /* DATA SOURCE BADGES */
 .src-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid;}
@@ -265,10 +231,6 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
 .s-btn{width:100%;background:var(--gold);color:#07090d;border:none;padding:11px;font-family:var(--B);font-weight:600;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:background .2s;margin-top:4px;}
 .s-btn:hover{background:var(--gold2);}
 .form-ok{display:none;padding:11px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);border-radius:3px;color:var(--green);font-size:.78rem;text-align:center;margin-top:10px;}
-.logo-card{background:var(--card2);border:1px solid var(--bdr2);border-radius:3px;padding:22px;margin-top:20px;}
-.logo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
-.logo-opt{background:var(--card);border:1px solid var(--bdr2);border-radius:3px;padding:18px 10px;text-align:center;transition:border-color .2s;}
-.logo-opt:hover{border-color:var(--bdr);}
 .logo-nm{font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:6px;}
 
 /* SUBSCRIBE MODAL */
@@ -293,21 +255,122 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
 #pModal{display:none;position:fixed;inset:0;z-index:300;background:rgba(7,9,13,.94);backdrop-filter:blur(12px);overflow-y:auto;}
 #pModal>div{max-width:620px;margin:72px auto;padding:0 20px;}
 
-/* MOBILE */
+/* ══════ MOBILE ══════ */
 @media(max-width:768px){
-  nav{padding:12px 18px;}.nav-ul{display:none;}
+
+  /* NAV */
+  nav{padding:12px 18px;}
+  .nav-ul{display:none;}
   .ds-bar{padding:5px 18px;}
-  .hero{padding:82px 18px 48px;}.hero-btns{flex-direction:column;}.btn{text-align:center;width:100%;}
-  .gi-sec{padding:44px 18px;}.gi-cats{gap:8px;}.gi-cat{padding:10px 14px;font-size:.76rem;}.gi-gl-cols{grid-template-columns:1fr;}.gi-gl-col:first-child{border-right:none;border-bottom:1px solid var(--bdr2);}
-  .p-sec{padding:56px 0 56px 18px;}.p-grid{gap:8px;padding-right:18px;}.p-card{min-width:178px;padding:22px 16px;}
-  .blog-sec{padding:56px 18px;}.blog-inner{max-width:100%;}
-  .mkt-page{padding:82px 18px 56px;}.mkt-tables{grid-template-columns:1fr;}
-  .gl-cols{grid-template-columns:1fr;}.gl-col:first-child{border-right:none;border-bottom:1px solid var(--bdr2);}
-  .con-page{padding:82px 18px 56px;}.con-grid{grid-template-columns:1fr;gap:22px;}
-  footer{flex-direction:column;gap:8px;text-align:center;padding:22px 18px;}
-  .logo-grid{grid-template-columns:1fr 1fr;}
+
+  /* HERO */
+  .hero{padding:82px 18px 48px;}
+  .hero-btns{flex-direction:column;}
+  .btn{text-align:center;width:100%;}
+
+  /* ── GLOBAL INDICATORS — full mobile overhaul ── */
+  .gi-sec{padding:32px 14px;}
+
+  /* Category buttons: 2 per row, compact */
+  .gi-cats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .gi-cat{
+    padding:10px 10px;
+    font-size:.72rem;
+    gap:6px;
+    justify-content:flex-start;
+    border-radius:6px;
+  }
+  .gi-cat-ico{font-size:.95rem;}
+  .gi-cat-lbl{font-size:.72rem;font-weight:600;}
+  .gi-cat-src{display:none;} /* hide source label on mobile */
+
+  /* Panel */
+  .gi-panel{border-radius:6px;overflow:hidden;}
+  .gi-panel-hd{
+    padding:11px 14px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+  }
+  .gi-panel-hd h3{font-size:.88rem;}
+  .gi-panel-time{font-size:.58rem;}
+
+  /* Tables inside panel */
+  .gi-table th{padding:6px 12px;font-size:.54rem;}
+  .gi-table td{padding:8px 12px;font-size:.74rem;}
+  .gi-val{font-size:.7rem;}
+  .gi-unit{font-size:.54rem;}
+  .gi-lbl{font-size:.74rem;max-width:120px;}
+
+  /* Gainers/Losers: stack vertically on mobile */
+  .gi-gl-cols{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .gi-gl-col:first-child{
+    border-right:none;
+    border-bottom:1px solid var(--bdr2);
+  }
+  .gi-gl-hdr{padding:7px 12px;font-size:.56rem;}
+  .gi-gl-counts{gap:6px;}
+  .gi-cnt{padding:4px 10px;}
+  .gi-cnt strong{font-size:.9rem;}
+  .gi-cnt span{font-size:.48rem;}
+
+  /* Loading spinner */
+  .gi-loading{padding:28px 14px;font-size:.76rem;}
+
+  /* PILLARS */
+  .p-sec{padding:56px 0 56px 14px;}
+  .p-grid{gap:8px;padding-right:14px;}
+  .p-card{min-width:165px;padding:20px 14px;}
+
+  /* BLOG */
+  .blog-sec{padding:48px 14px;}
+  .blog-inner{max-width:100%;}
+
+  /* MARKETS PAGE (separate page, not homepage GI) */
+  .mkt-page{padding:82px 14px 56px;}
+  .mkt-tables{grid-template-columns:1fr;}
+  .gl-cols{grid-template-columns:1fr;}
+  .gl-col:first-child{border-right:none;border-bottom:1px solid var(--bdr2);}
+
+  /* CONTACT */
+  .con-page{padding:82px 14px 56px;}
+  .con-grid{grid-template-columns:1fr;gap:20px;}
+
+  /* FOOTER */
+  footer{flex-direction:column;gap:8px;text-align:center;padding:22px 14px;}
+
+  /* MODALS */
   #pModal>div{margin:18px auto;padding:0 14px;}
   .t-grid{grid-template-columns:1fr;}
+
+  /* SUBSCRIBE modal */
+  .sub-box{padding:28px 18px;}
+
+  /* Overflow fix — prevent any horizontal scroll */
+  .gi-panel, .gi-table{max-width:100%;overflow-x:hidden;}
+  .gi-table{table-layout:fixed;}
+  .gi-table th:first-child,
+  .gi-table td:first-child{width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .gi-table th:nth-child(2),
+  .gi-table td:nth-child(2){width:28%;}
+  .gi-table th:nth-child(3),
+  .gi-table td:nth-child(3){width:24%;}
+}
+
+/* Extra small phones */
+@media(max-width:380px){
+  .gi-cats{grid-template-columns:1fr 1fr;}
+  .gi-cat{padding:8px 8px;font-size:.68rem;}
+  .gi-cat-lbl{font-size:.66rem;}
+  .gi-table td{padding:7px 10px;font-size:.68rem;}
 }
 </style>
 </head>
@@ -324,11 +387,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
 <!-- NAV -->
 <nav id="nv">
   <a class="logo" onclick="goH();return false;" href="#">
-    <span class="logo-badge">
-      <span class="logo-w">Fino</span>
-      <span class="logo-divider"></span>
-      <span class="logo-y">Bash</span>
-    </span>
+    <span class="logo-badge"><span class="logo-w">Fino</span><span class="logo-y">Bash</span></span>
   </a>
   <ul class="nav-ul">
     <li><a onclick="goH();return false;" href="#">Home</a></li>
@@ -370,13 +429,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
     </div>
   </section>
 
-  <!-- LIVE STRIP -->
-  <div class="strip">
-    <div class="strip-badge">🔴 Live</div>
-    <div class="strip-track" id="stripT">
-      <div class="si"><span class="si-n">Loading market data...</span></div>
-    </div>
-  </div>
+
 
   <!-- GLOBAL INDICATORS — TABBED -->
   <section class="gi-sec" id="gi-sec">
@@ -576,61 +629,14 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
                 </div>
                 <div class="soc-det"><strong>Instagram</strong><span>@finobash</span></div>
               </a>
-              <a href="mailto:finobash.official@gmail.com" class="soc-lnk">
+              <a href="/cdn-cgi/l/email-protection#0d6b6463626f6c7e6523626b6b646e646c614d6a606c6461236e6260" class="soc-lnk">
                 <div class="soc-ico" style="background:#fff;">
                   <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.907 1.528-1.148C21.69 2.28 24 3.434 24 5.457z"/></svg>
                 </div>
-                <div class="soc-det"><strong>Email</strong><span>finobash.official@gmail.com</span></div>
+                <div class="soc-det"><strong>Email</strong><span><span class="__cf_email__" data-cfemail="67010e09080506140f490801010e040e060b27000a060e0b4904080a">[email&#160;protected]</span></span></div>
               </a>
             </div>
-            <hr class="dv">
-            <div class="logo-card">
-              <span class="s-tag" style="font-size:.6rem;">Logo Options</span>
-              <h4 style="font-family:var(--F);font-size:1rem;font-weight:600;margin-top:4px;margin-bottom:4px;">Logo Style Variants</h4>
-              <p style="color:var(--muted);font-size:.75rem;line-height:1.58;">Same style on website header and Instagram profile picture (dark background).</p>
-              <div class="logo-grid">
-                <div class="logo-opt" style="border-color:var(--gold);">
-                  <div style="display:flex;justify-content:center;margin-bottom:6px;">
-                    <span style="display:inline-flex;align-items:stretch;border-radius:4px;overflow:hidden;font-family:var(--F);font-size:1rem;font-weight:700;">
-                      <span style="background:#fff;color:#07090d;padding:4px 5px 4px 10px;">Fino</span>
-                      <span style="width:2px;background:var(--gold);"></span>
-                      <span style="background:var(--gold);color:#07090d;padding:4px 10px 4px 5px;font-style:italic;">Bash</span>
-                    </span>
-                  </div>
-                  <div class="logo-nm" style="color:var(--gold);">★ Current</div>
-                </div>
-                <div class="logo-opt">
-                  <div style="font-family:var(--F);font-size:1.7rem;font-weight:700;color:var(--gold);margin-bottom:4px;letter-spacing:.04em;">FB</div>
-                  <div class="logo-nm">Monogram (Insta)</div>
-                </div>
-                <div class="logo-opt">
-                  <div style="display:flex;justify-content:center;margin-bottom:6px;">
-                    <span style="display:inline-flex;align-items:stretch;border-radius:4px;overflow:hidden;font-family:var(--F);font-size:1rem;font-weight:700;border:1.5px solid var(--gold);">
-                      <span style="background:var(--card);color:#fff;padding:4px 5px 4px 10px;">Fino</span>
-                      <span style="width:2px;background:var(--gold);"></span>
-                      <span style="background:var(--gold);color:#07090d;padding:4px 10px 4px 5px;font-style:italic;">Bash</span>
-                    </span>
-                  </div>
-                  <div class="logo-nm">Dark + Gold</div>
-                </div>
-                <div class="logo-opt">
-                  <div style="font-family:var(--M);font-size:.9rem;font-weight:500;margin-bottom:4px;">FINO<span style="color:var(--gold)">BASH</span></div>
-                  <div class="logo-nm">Monospace</div>
-                </div>
-                <div class="logo-opt">
-                  <div style="font-family:var(--F);font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;">FinoBash</div>
-                  <div class="logo-nm">Gold Gradient</div>
-                </div>
-                <div class="logo-opt">
-                  <div style="display:flex;justify-content:center;margin-bottom:4px;">
-                    <span style="width:38px;height:38px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--F);font-size:1.15rem;font-weight:700;color:#07090d;font-style:italic;">FB</span>
-                  </div>
-                  <div class="logo-nm">Icon (Insta PFP)</div>
-                </div>
-              </div>
-              <p style="color:var(--muted);font-size:.72rem;margin-top:12px;line-height:1.58;">💡 Use <em>Current</em> on website · <em>Icon (FB)</em> as Instagram profile picture.</p>
             </div>
-          </div>
         </div>
         <div class="con-card">
           <h3>Write to Us</h3>
@@ -688,7 +694,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ══════════════════════════════════════════════════════
 // FINOBASH DATA ENGINE v5 — tabbed GI on homepage
 // ══════════════════════════════════════════════════════
@@ -766,34 +772,8 @@ async function srvFetch(ep){
   try{const r=await fetch(API_BASE+ep,{signal:AbortSignal.timeout(8000)});if(!r.ok)return null;return await r.json();}catch{return null;}
 }
 
-// ── LIVE STRIP ──
-const SFB=[
-  {l:'NIFTY 50',p:'22,519',c:1.18,u:true,s:'NSE'},{l:'SENSEX',p:'74,227',c:0.88,u:true,s:'BSE'},
-  {l:'GOLD/oz',p:'$2,918',c:0.42,u:true,s:'CME'},{l:'SILVER/oz',p:'$32.68',c:-0.21,u:false,s:'CME'},
-  {l:'NASDAQ',p:'17,812',c:-0.38,u:false,s:'NYSE'},{l:'S&P 500',p:'5,962',c:0.31,u:true,s:'NYSE'},
-  {l:'CRUDE/bbl',p:'$69.54',c:-0.58,u:false,s:'CME'},{l:'USD/INR',p:'83.48',c:0.07,u:true,s:'RBI'},
-];
-const mkSI=arr=>arr.map(x=>`<div class="si"><span class="si-src">${x.s}</span><span class="si-n">${x.l}</span><span class="si-p">${x.p}</span><span class="${x.u?'si-u':'si-d'}">${x.u?'▲':'▼'} ${Math.abs(x.c).toFixed(2)}%</span></div>`).join('');
-const SSYMS=[
-  {sym:'^NSEI',l:'NIFTY 50',s:'NSE'},{sym:'^BSESN',l:'SENSEX',s:'BSE'},
-  {sym:'GC=F',l:'GOLD/oz',s:'CME'},{sym:'SI=F',l:'SILVER/oz',s:'CME'},
-  {sym:'^IXIC',l:'NASDAQ',s:'NYSE'},{sym:'^GSPC',l:'S&P 500',s:'NYSE'},
-  {sym:'CL=F',l:'CRUDE/bbl',s:'CME'},{sym:'USDINR=X',l:'USD/INR',s:'RBI'},
-];
-async function loadStrip(){
-  const el=document.getElementById('stripT');
-  el.innerHTML=mkSI(SFB)+mkSI(SFB);
-  const live=[];
-  for(const it of SSYMS){
-    const q=await yFetch(it.sym);
-    if(q){
-      const up=q.chg>=0;
-      const isCom=['GC=F','SI=F','CL=F'].includes(it.sym);
-      live.push({l:it.l,p:isCom?'$'+fN(q.price):fN(q.price),c:q.chg,u:up,s:it.s});
-    }
-  }
-  if(live.length>=4)el.innerHTML=mkSI(live)+mkSI(live);
-}
+// live strip removed — no fallback data needed
+// live strip removed
 
 // ══════════════════════════════════════════════
 // GLOBAL INDICATORS — TABBED PANEL
@@ -836,13 +816,24 @@ async function loadGIData(cat){
     // Try Railway/NSE first
     const srv=await srvFetch('/api/nse/indices');
     if(srv?.data?.length>0){
-      GI.indian.rows=srv.data.slice(0,12).map(x=>({name:x.name,val:fN(x.last),chg:x.pchg}));
+      // Ensure Nifty 50 first, Sensex second, rest follow
+      const d=srv.data;
+      const nifty=d.find(x=>x.name==='NIFTY 50')||d[0];
+      const sensex=d.find(x=>x.name.includes('SENSEX'));
+      const rest=d.filter(x=>x!==nifty&&x!==sensex).slice(0,10);
+      const ordered=[nifty,sensex,...rest].filter(Boolean);
+      GI.indian.rows=ordered.map(x=>({name:x.name,val:fN(x.last),chg:x.pchg}));
     } else {
       // Yahoo fallback
       const syms=[
-        {n:'Nifty 50',s:'^NSEI'},{n:'Sensex',s:'^BSESN'},{n:'Nifty Bank',s:'^NSEBANK'},
-        {n:'Nifty IT',s:'^CNXIT'},{n:'Nifty Next 50',s:'^NSMIDCP'},
-        {n:'Nifty Pharma',s:'PHARMABEES.NS'},{n:'Nifty Metal',s:'METALBEES.NS'},
+        {n:'Nifty 50',s:'^NSEI'},
+        {n:'Sensex',s:'^BSESN'},
+        {n:'Nifty Bank',s:'^NSEBANK'},
+        {n:'Nifty IT',s:'^CNXIT'},
+        {n:'Nifty Next 50',s:'^NSMIDCP'},
+        {n:'Nifty Midcap 100',s:'^NSMIDCP'},
+        {n:'Nifty Pharma',s:'PHARMABEES.NS'},
+        {n:'Nifty Metal',s:'METALBEES.NS'},
         {n:'Gift Nifty',s:'NIFTYBEES.NS'},
       ];
       GI.indian.rows=[];
@@ -990,15 +981,5 @@ function renderGIContent(cat){
 }
 
 // ── INIT ──
-loadStrip();
 // Load first tab (Indian Indices) on page load
-loadGIData('indian').then(()=>{if(giActive==='indian')renderGIContent('indian');});
-setInterval(()=>{
-  loadStrip();
-  // Refresh current active tab silently
-  giLoaded[giActive]=false;
-  loadGIData(giActive).then(()=>renderGIContent(giActive));
-},5*60*1000);
-</script>
-</body>
-</html>
+loadGIData('indian').then(
