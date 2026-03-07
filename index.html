@@ -781,36 +781,85 @@ function nowIST(){return new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/K
 // ── YAHOO — fires ALL 4 proxies in parallel, takes fastest winner ──
 // FIX 9: parallel race instead of sequential fallback = much faster
 async function yFetch(sym){
-  const base='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?interval=1d&range=2d&includePrePost=false';
-  const proxies=[
-    `https://corsproxy.io/?url=${encodeURIComponent(base)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(base)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(base)}`,
-    `https://thingproxy.freeboard.io/fetch/${base}`,
+  // Two Yahoo endpoints — v8 chart + v7 quote (fallback)
+  const enc=encodeURIComponent(sym);
+  const v8=`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=1d&range=2d&includePrePost=false`;
+  const v8b=`https://query2.finance.yahoo.com/v8/finance/chart/${enc}?interval=1d&range=2d&includePrePost=false`;
+  const v7=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${enc}&fields=regularMarketPrice,regularMarketChangePercent,regularMarketPreviousClose`;
+
+  // 6 proxy attempts — 2 endpoints × 3 proxies, all fired in parallel
+  const attempts=[
+    // v8 via 3 proxies
+    {url:`https://corsproxy.io/?url=${encodeURIComponent(v8)}`,  type:'v8'},
+    {url:`https://api.allorigins.win/get?url=${encodeURIComponent(v8)}`, type:'v8'},
+    {url:`https://api.allorigins.win/get?url=${encodeURIComponent(v8b)}`,type:'v8'},
+    // v7 quote via 3 proxies (simpler response, easier to parse)
+    {url:`https://corsproxy.io/?url=${encodeURIComponent(v7)}`,  type:'v7'},
+    {url:`https://api.allorigins.win/get?url=${encodeURIComponent(v7)}`, type:'v7'},
+    {url:`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(v7)}`, type:'v7'},
   ];
-  const parse=async(p)=>{
-    const r=await fetch(p,{signal:AbortSignal.timeout(8000)});
+
+  const parseAttempt=async({url,type})=>{
+    const r=await fetch(url,{signal:AbortSignal.timeout(9000)});
     if(!r.ok)throw 0;
     const txt=await r.text();
     const w=JSON.parse(txt);
     const d=w.contents?JSON.parse(w.contents):w;
-    const meta=d?.chart?.result?.[0]?.meta;
-    if(!meta?.regularMarketPrice)throw 0;
-    // FIX 7: use regularMarketChangePercent which is already in % form
-    const chg = meta.regularMarketChangePercent ?? 
-                ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100);
-    return {price: meta.regularMarketPrice, chg};
+    if(type==='v8'){
+      const meta=d?.chart?.result?.[0]?.meta;
+      if(!meta?.regularMarketPrice)throw 0;
+      const chg=meta.regularMarketChangePercent??
+        ((meta.regularMarketPrice-meta.chartPreviousClose)/meta.chartPreviousClose*100);
+      return{price:meta.regularMarketPrice,chg};
+    } else {
+      // v7 quote response
+      const q=d?.quoteResponse?.result?.[0];
+      if(!q?.regularMarketPrice)throw 0;
+      return{price:q.regularMarketPrice,chg:q.regularMarketChangePercent??0};
+    }
   };
-  try{ return await Promise.any(proxies.map(p=>parse(p))); }
-  catch{ return null; }
+
+  try{return await Promise.any(attempts.map(a=>parseAttempt(a)));}
+  catch{return null;}
 }
 
 async function srvFetch(ep){
   try{const r=await fetch(API_BASE+ep,{signal:AbortSignal.timeout(5000)});if(!r.ok)return null;return await r.json();}catch{return null;}
 }
 
-// Parallel batch fetch — returns array same length as syms, nulls for failures
-async function yBatch(syms){ return Promise.all(syms.map(s=>yFetch(s))); }
+// Smart batch — tries multi-symbol v7 quote (1 request) first, falls back to individual
+async function yBatch(syms){
+  const tryMulti=async()=>{
+    const joined=syms.map(s=>encodeURIComponent(s)).join('%2C');
+    const v7=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${joined}&fields=regularMarketPrice,regularMarketChangePercent`;
+    const proxies=[
+      `https://corsproxy.io/?url=${encodeURIComponent(v7)}`,
+      `https://api.allorigins.win/get?url=${encodeURIComponent(v7)}`,
+    ];
+    const parseMulti=async(url)=>{
+      const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+      if(!r.ok)throw 0;
+      const txt=await r.text();
+      const w=JSON.parse(txt);
+      const d=w.contents?JSON.parse(w.contents):w;
+      const results=d?.quoteResponse?.result;
+      if(!results?.length)throw 0;
+      const map={};
+      for(const q of results){
+        if(q.symbol&&q.regularMarketPrice)
+          map[q.symbol]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent??0};
+      }
+      return map;
+    };
+    return await Promise.any(proxies.map(url=>parseMulti(url)));
+  };
+  try{
+    const map=await tryMulti();
+    return syms.map(s=>map[s]||null);
+  }catch{
+    return Promise.all(syms.map(s=>yFetch(s)));
+  }
+}
 
 // ══════════════════════════════════════════════
 // SHARED DATA STORE — FIX 8: home + markets use SAME data
