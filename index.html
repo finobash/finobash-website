@@ -22,18 +22,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--B);overflow-x:hidd
 /* ── LOGO ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 52px;backdrop-filter:blur(24px);background:rgba(7,9,13,0.93);border-bottom:1px solid var(--bdr2);transition:border-color .3s;}
 
-/* LOGO — gold border box, Fino white + Bash gold italic — same everywhere */
+/* LOGO — gold border box, FinoBash: F+B caps rest lowercase, no italic */
 .logo{cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;line-height:1;}
 .logo-badge{
   display:inline-flex;align-items:center;
   border-radius:4px;border:1.5px solid var(--gold);
   padding:5px 13px;
-  font-family:var(--F);font-size:1.18rem;font-weight:700;
-  letter-spacing:.04em;line-height:1;
+  font-family:var(--B);font-size:1.05rem;font-weight:700;
+  letter-spacing:.06em;line-height:1;
+  font-style:normal;
 }
 .logo-w{color:#ffffff;font-style:normal;}
 .logo-divider{display:none;}
-.logo-y{color:var(--gold);font-style:italic;}
+.logo-y{color:var(--gold);font-style:normal;}
 
 /* NAV rest */
 .nav-ul{display:flex;gap:26px;list-style:none;align-items:center;}
@@ -152,16 +153,36 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .p-lnk{color:var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 .p-n{position:absolute;top:12px;right:13px;font-family:var(--F);font-size:2.6rem;font-weight:700;color:rgba(212,168,67,.045);line-height:1;}
 
-/* BLOG */
+/* RECENT POSTS */
 .blog-sec{padding:72px 52px;background:var(--bg2);}
 .blog-inner{max-width:1220px;margin:0 auto;}
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.post-card{background:var(--card);border:1px solid var(--bdr2);border-radius:4px;padding:22px 24px;cursor:pointer;transition:all .22s;display:flex;flex-direction:column;gap:10px;}
+.post-card:hover{border-color:var(--bdr);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.3);}
+.post-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:2px;font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.pill-inv{background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);color:var(--gold);}
+.pill-pf{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#22c55e;}
+.pill-mm{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);color:#a78bfa;}
+.pill-nt{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#60a5fa;}
+.pill-mb{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;}
+.post-title{font-family:var(--F);font-size:1.05rem;font-weight:600;line-height:1.35;color:var(--text);}
+.post-card:hover .post-title{color:var(--gold);}
+.post-preview{font-size:.78rem;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.post-meta{font-size:.62rem;color:var(--muted);font-family:var(--M);margin-top:auto;padding-top:6px;border-top:1px solid var(--bdr2);}
+.posts-empty{background:var(--card);border:1px solid var(--bdr2);border-radius:4px;padding:48px 36px;text-align:center;}
+/* ARTICLE READER */
+.art-reader{background:var(--card);border:1px solid var(--bdr2);border-radius:4px;padding:36px 40px;max-width:680px;}
+.art-reader h2{font-family:var(--F);font-size:clamp(1.4rem,3vw,2rem);font-weight:600;line-height:1.25;margin:12px 0 8px;}
+.art-reader-meta{font-size:.66rem;color:var(--muted);font-family:var(--M);margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--bdr2);}
+.art-body{font-size:.88rem;line-height:1.82;color:var(--text);}
+.art-body p{margin-bottom:14px;}
 
 /* FOOTER */
 footer{background:var(--bg2);border-top:1px solid var(--bdr2);padding:28px 52px;display:flex;align-items:center;justify-content:space-between;}
-.f-logo-wrap{display:inline-flex;align-items:center;border-radius:4px;border:1.5px solid var(--gold);padding:4px 12px;font-family:var(--F);font-size:.95rem;font-weight:700;letter-spacing:.04em;line-height:1;}
+.f-logo-wrap{display:inline-flex;align-items:center;border-radius:4px;border:1.5px solid var(--gold);padding:4px 12px;font-family:var(--B);font-size:.88rem;font-weight:700;letter-spacing:.06em;line-height:1;font-style:normal;}
 .f-logo-w{color:#ffffff;font-style:normal;}
 .f-logo-div{display:none;}
-.f-logo-y{color:var(--gold);font-style:italic;}
+.f-logo-y{color:var(--gold);font-style:normal;}
 footer p{color:var(--muted);font-size:.72rem;}
 .f-note{font-family:var(--M);color:var(--muted);font-size:.66rem;}
 
@@ -330,9 +351,11 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
   .p-grid{gap:8px;padding-right:14px;}
   .p-card{min-width:165px;padding:20px 14px;}
 
-  /* BLOG */
+  /* RECENT POSTS */
   .blog-sec{padding:48px 14px;}
   .blog-inner{max-width:100%;}
+  .posts-grid{grid-template-columns:1fr;}
+  .art-reader{padding:22px 18px;}
 
   /* MARKETS PAGE (separate page, not homepage GI) */
   .mkt-page{padding:82px 14px 56px;}
@@ -498,16 +521,14 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
     </div>
   </section>
 
-  <!-- BLOG -->
+  <!-- RECENT POSTS -->
   <section class="blog-sec" id="blog-sec">
     <div class="blog-inner">
-      <div style="margin-bottom:28px;"><span class="s-tag">Articles</span><h2 class="s-ttl">From the Blog</h2></div>
-      <div style="background:var(--card);border:1px solid var(--bdr2);border-radius:4px;padding:56px 36px;text-align:center;">
-        <div style="font-size:2.4rem;margin-bottom:12px;">✍️</div>
-        <h3 style="font-family:var(--F);font-size:1.3rem;font-weight:600;margin-bottom:7px;">Articles Coming Soon</h3>
-        <p style="color:var(--muted);font-size:.82rem;line-height:1.68;max-width:360px;margin:0 auto 20px;">In-depth finance content across all 5 pillars — subscribe or follow on Instagram to be notified first.</p>
-        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn btn-g">Follow @finobash</a>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px;">
+        <div><span class="s-tag">Latest</span><h2 class="s-ttl">Recent Posts</h2></div>
+        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn btn-o" style="font-size:.72rem;letter-spacing:.05em;padding:8px 18px;">Follow @finobash</a>
       </div>
+      <div id="recentPosts"></div>
     </div>
   </section>
 
@@ -661,15 +682,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
     <div style="display:inline-block;background:var(--gdim);border:1px solid var(--bdr);padding:3px 9px;border-radius:2px;color:var(--gold);font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Content Pillar</div>
     <h2 id="pT" style="font-family:var(--F);font-size:clamp(1.7rem,4vw,2.8rem);font-weight:600;margin-bottom:10px;"></h2>
     <p id="pD" style="color:var(--muted);font-size:.86rem;line-height:1.72;margin-bottom:36px;"></p>
-    <div style="background:var(--card);border:1px solid var(--bdr2);border-radius:4px;padding:40px 32px;text-align:center;">
-      <div style="font-size:2.2rem;margin-bottom:10px;">🚀</div>
-      <h3 style="font-family:var(--F);font-size:1.2rem;font-weight:600;margin-bottom:7px;">Content Coming Soon</h3>
-      <p style="color:var(--muted);font-size:.82rem;line-height:1.65;max-width:320px;margin:0 auto 20px;">Follow on Instagram or email us to suggest what you'd like to see here first!</p>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn btn-g">Follow on Instagram</a>
-        <button class="btn btn-o" onclick="closeP();showP('contact')">Suggest a Topic</button>
-      </div>
-    </div>
+    <div id="pillarArticles"></div>
   </div>
 </div>
 
@@ -677,7 +690,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
 <div id="subModal">
   <div class="sub-box">
     <button class="sub-x" onclick="closeSub()">✕</button>
-    <h2>Subscribe to <em style="color:var(--gold);font-style:italic;">FinoBash</em></h2>
+    <h2>Subscribe to <span style="color:var(--gold);">FinoBash</span></h2>
     <p>Pick the topics you care about — we'll alert you the moment new content goes live.</p>
     <div class="t-grid">
       <div class="t-item" onclick="togT(this)"><span class="t-ck">✓</span><span class="t-lbl2">📈 Investing</span></div>
@@ -694,7 +707,123 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+// ══════════════════════════════════════════════
+// ARTICLE SYSTEM — reads from shared storage
+// ══════════════════════════════════════════════
+const PILL_MAP={
+  'Investing':       {ico:'📈',cls:'pill-inv'},
+  'Personal Finance':{ico:'💰',cls:'pill-pf'},
+  'Money Mindset':   {ico:'🧠',cls:'pill-mm'},
+  'News & Trends':   {ico:'📰',cls:'pill-nt'},
+  'Myth Busting':    {ico:'🔍',cls:'pill-mb'},
+};
+async function getArticles(){
+  try{const r=await window.storage.get('finobash:articles');return r?JSON.parse(r.value):[];}catch{return[];}
+}
+function fmtDate(ts){return new Date(ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
+function readTime(txt){return Math.max(1,Math.ceil(txt.split(' ').length/200));}
+function pillBadge(pillar){
+  const p=PILL_MAP[pillar]||{ico:'📄',cls:'pill-inv'};
+  return `<span class="post-pill ${p.cls}">${p.ico} ${pillar}</span>`;
+}
+
+async function loadRecentPosts(){
+  const el=document.getElementById('recentPosts');
+  if(!el)return;
+  const all=await getArticles();
+  if(!all.length){
+    el.innerHTML=`<div class="posts-empty">
+      <div style="font-size:2.2rem;margin-bottom:10px;">✍️</div>
+      <h3 style="font-family:var(--F);font-size:1.1rem;font-weight:600;margin-bottom:7px;">Articles Coming Soon</h3>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.65;max-width:320px;margin:0 auto;">In-depth finance content across all 5 pillars. Follow on Instagram to be notified first.</p>
+    </div>`;
+    return;
+  }
+  const recent=all.slice(0,5);
+  el.innerHTML=`<div class="posts-grid">${recent.map(a=>`
+    <div class="post-card" onclick="openArticle('${a.id}')">
+      ${pillBadge(a.pillar)}
+      <div class="post-title">${a.title} <span style="color:var(--muted);font-weight:400;font-size:.88em;">— ${a.pillar}</span></div>
+      <div class="post-preview">${a.content.replace(/
+/g,' ')}</div>
+      <div class="post-meta">${fmtDate(a.createdAt)} · ${readTime(a.content)} min read</div>
+    </div>`).join('')}</div>`;
+}
+
+async function loadPillarArticles(pillar){
+  const el=document.getElementById('pillarArticles');
+  if(!el)return;
+  const all=await getArticles();
+  const filtered=all.filter(a=>a.pillar===pillar);
+  if(!filtered.length){
+    el.innerHTML=`<div class="posts-empty">
+      <div style="font-size:2rem;margin-bottom:10px;">🚀</div>
+      <h3 style="font-family:var(--F);font-size:1.1rem;font-weight:600;margin-bottom:7px;">Content Coming Soon</h3>
+      <p style="color:var(--muted);font-size:.78rem;line-height:1.65;max-width:300px;margin:0 auto 20px;">Follow on Instagram or email us to suggest what you'd like to see here first!</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a href="https://www.instagram.com/finobash/" target="_blank" class="btn btn-g">Follow on Instagram</a>
+        <button class="btn btn-o" onclick="closeP();showP('contact')">Suggest a Topic</button>
+      </div>
+    </div>`;
+    return;
+  }
+  el.innerHTML=`<div class="posts-grid" style="margin-top:8px;">${filtered.map(a=>`
+    <div class="post-card" onclick="openArticle('${a.id}',true)">
+      <div class="post-title">${a.title}</div>
+      <div class="post-preview">${a.content.replace(/
+/g,' ')}</div>
+      <div class="post-meta">${fmtDate(a.createdAt)} · ${readTime(a.content)} min read</div>
+    </div>`).join('')}</div>`;
+}
+
+let articleStack=[];
+let currentPillarTitle='',currentPillarIco='',currentPillarDesc='';
+
+async function openArticle(id,fromPillar=false){
+  const all=await getArticles();
+  const a=all.find(x=>x.id===id);
+  if(!a)return;
+  articleStack.push({fromPillar,title:currentPillarTitle,ico:currentPillarIco,desc:currentPillarDesc});
+  const modal=document.getElementById('pModal');
+  const inner=modal.querySelector('div');
+  inner.innerHTML=`
+    <button onclick="backFromArticle()" style="background:var(--card);border:1px solid var(--bdr2);color:var(--muted);padding:8px 16px;border-radius:3px;cursor:pointer;font-family:var(--B);font-size:.76rem;margin-bottom:28px;">← Back</button>
+    <div class="art-reader">
+      ${pillBadge(a.pillar)}
+      <h2>${a.title}</h2>
+      <div class="art-reader-meta">${fmtDate(a.createdAt)} · ${readTime(a.content)} min read · FinoBash</div>
+      <div class="art-body">${a.content.split(/\n\n+/).map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}</div>
+    </div>`;
+  modal.style.display='block';
+  document.body.style.overflow='hidden';
+  modal.scrollTop=0;
+}
+
+function backFromArticle(){
+  const prev=articleStack.pop();
+  if(prev&&prev.fromPillar&&prev.title){
+    openP(prev.title,prev.ico,prev.desc);
+  } else {
+    closeP();
+  }
+}
+
+// Override openP to also load pillar articles
+const _origOpenP=openP;
+window.openP=function(t,i,d){
+  currentPillarTitle=t;currentPillarIco=i;currentPillarDesc=d;
+  document.getElementById('pT').textContent=t;
+  document.getElementById('pI').textContent=i;
+  document.getElementById('pD').textContent=d;
+  document.getElementById('pModal').style.display='block';
+  document.body.style.overflow='hidden';
+  loadPillarArticles(t);
+};
+
+// Load on init
+loadRecentPosts();
+</script><script>
 // ══════════════════════════════════════════════════════
 // FINOBASH DATA ENGINE v5 — tabbed GI on homepage
 // ══════════════════════════════════════════════════════
@@ -754,7 +883,7 @@ async function yFetch(sym){
   ];
   for(const p of proxies){
     try{
-      const r=await fetch(p,{signal:AbortSignal.timeout(8000)});
+      const r=await fetch(p,{signal:AbortSignal.timeout(5000)});
       if(!r.ok)continue;
       const txt=await r.text();
       let d;
@@ -769,7 +898,7 @@ async function yFetch(sym){
 
 // ── RAILWAY server ──
 async function srvFetch(ep){
-  try{const r=await fetch(API_BASE+ep,{signal:AbortSignal.timeout(8000)});if(!r.ok)return null;return await r.json();}catch{return null;}
+  try{const r=await fetch(API_BASE+ep,{signal:AbortSignal.timeout(5000)});if(!r.ok)return null;return await r.json();}catch{return null;}
 }
 
 // live strip removed — no fallback data needed
@@ -836,8 +965,8 @@ async function loadGIData(cat){
         {n:'Nifty Metal',s:'METALBEES.NS'},
         {n:'Gift Nifty',s:'NIFTYBEES.NS'},
       ];
-      GI.indian.rows=[];
-      for(const x of syms){const q=await yFetch(x.s);if(q)GI.indian.rows.push({name:x.n,val:fN(q.price),chg:q.chg});}
+      const indResults=await Promise.all(syms.map(x=>yFetch(x.s).then(q=>q?{name:x.n,val:fN(q.price),chg:q.chg}:null)));
+      GI.indian.rows=indResults.filter(Boolean);
     }
     GI.indian.time=now;
     giLoaded.indian=true;
@@ -851,11 +980,7 @@ async function loadGIData(cat){
     } else {
       // Yahoo fallback — fetch all Nifty 50
       const N50=['RELIANCE.NS','TCS.NS','HDFCBANK.NS','BHARTIARTL.NS','ICICIBANK.NS','INFOSYS.NS','SBIN.NS','HINDUNILVR.NS','ITC.NS','LT.NS','KOTAKBANK.NS','AXISBANK.NS','BAJFINANCE.NS','ASIANPAINT.NS','MARUTI.NS','TITAN.NS','NESTLEIND.NS','WIPRO.NS','HCLTECH.NS','ULTRACEMCO.NS','SUNPHARMA.NS','ONGC.NS','POWERGRID.NS','NTPC.NS','ADANIENT.NS','ADANIPORTS.NS','BAJAJFINSV.NS','BPCL.NS','BRITANNIA.NS','CIPLA.NS','COALINDIA.NS','DIVISLAB.NS','DRREDDY.NS','EICHERMOT.NS','GRASIM.NS','HDFCLIFE.NS','HEROMOTOCO.NS','HINDALCO.NS','INDUSINDBK.NS','JSWSTEEL.NS','M&M.NS','APOLLOHOSP.NS','SBILIFE.NS','SHRIRAMFIN.NS','TATACONSUM.NS','TATAMOTORS.NS','TATASTEEL.NS','TECHM.NS','TRENT.NS','BAJAJ-AUTO.NS'];
-      const res=[];
-      for(let i=0;i<N50.length;i+=5){
-        const b=await Promise.all(N50.slice(i,i+5).map(s=>yFetch(s).then(q=>q?{symbol:s.replace('.NS',''),ltp:q.price,pchg:q.chg}:null)));
-        res.push(...b.filter(Boolean));
-      }
+      const res=(await Promise.all(N50.map(s=>yFetch(s).then(q=>q?{symbol:s.replace('.NS',''),ltp:q.price,pchg:q.chg}:null)))).filter(Boolean);
       const gn=res.filter(s=>s.pchg>0).sort((a,b)=>b.pchg-a.pchg);
       const ls=res.filter(s=>s.pchg<0).sort((a,b)=>a.pchg-b.pchg);
       GI.gl.gainers=gn.slice(0,5);GI.gl.losers=ls.slice(0,5);
@@ -871,8 +996,8 @@ async function loadGIData(cat){
       {n:'Nikkei 225',s:'^N225',ex:'TSE'},{n:'Hang Seng',s:'^HSI',ex:'HKEX'},
       {n:'DAX',s:'^GDAXI',ex:'XETRA'},{n:'CAC 40',s:'^FCHI',ex:'Euronext'},
     ];
-    GI.global.rows=[];
-    for(const x of syms){const q=await yFetch(x.s);if(q)GI.global.rows.push({name:x.n,ex:x.ex,val:fN(q.price),chg:q.chg});}
+    const glbResults=await Promise.all(syms.map(x=>yFetch(x.s).then(q=>q?{name:x.n,ex:x.ex,val:fN(q.price),chg:q.chg}:null)));
+    GI.global.rows=glbResults.filter(Boolean);
     GI.global.time=now;giLoaded.global=true;
   }
 
@@ -888,8 +1013,8 @@ async function loadGIData(cat){
       {n:'EUR / INR',s:'EURINR=X',unit:'Indian Rupee',ex:'Forex'},
       {n:'GBP / INR',s:'GBPINR=X',unit:'Indian Rupee',ex:'Forex'},
     ];
-    GI.comm.rows=[];
-    for(const x of syms){const q=await yFetch(x.s);if(q)GI.comm.rows.push({name:x.n,unit:x.unit,ex:x.ex,val:'$'+fN(q.price),chg:q.chg});}
+    const commResults=await Promise.all(syms.map(x=>yFetch(x.s).then(q=>q?{name:x.n,unit:x.unit,ex:x.ex,val:'$'+fN(q.price),chg:q.chg}:null)));
+    GI.comm.rows=commResults.filter(Boolean);
     GI.comm.time=now;giLoaded.comm=true;
   }
 }
@@ -982,4 +1107,11 @@ function renderGIContent(cat){
 
 // ── INIT ──
 // Load first tab (Indian Indices) on page load
-loadGIData('indian').then(
+loadGIData('indian').then(()=>{if(giActive==='indian')renderGIContent('indian');});
+setInterval(()=>{
+  giLoaded[giActive]=false;
+  loadGIData(giActive).then(()=>renderGIContent(giActive));
+},5*60*1000);
+</script>
+</body>
+</html>
