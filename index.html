@@ -615,8 +615,8 @@ const PILL_MAP={
   'News & Trends':   {ico:'📰',cls:'pill-nt'},
   'Myth Busting':    {ico:'🔍',cls:'pill-mb'},
 };
-async function getArticles(){
-  try{const r=await window.storage.get('finobash:articles');return r?JSON.parse(r.value):[];}catch{return[];}
+function getArticles(){
+  try{const r=localStorage.getItem('finobash:articles');return r?JSON.parse(r):[];}catch{return[];}
 }
 function fmtDate(ts){return new Date(ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
 function readTime(txt){return Math.max(1,Math.ceil(txt.split(' ').length/200));}
@@ -628,7 +628,7 @@ function pillBadge(pillar){
 async function loadRecentPosts(){
   const el=document.getElementById('recentPosts');
   if(!el)return;
-  const all=await getArticles();
+  const all=getArticles();
   if(!all.length){
     el.innerHTML=`<div class="posts-empty">
       <div style="font-size:2.2rem;margin-bottom:10px;">✍️</div>
@@ -651,7 +651,7 @@ async function loadRecentPosts(){
 async function loadPillarArticles(pillar){
   const el=document.getElementById('pillarArticles');
   if(!el)return;
-  const all=await getArticles();
+  const all=getArticles();
   const filtered=all.filter(a=>a.pillar===pillar);
   if(!filtered.length){
     el.innerHTML=`<div class="posts-empty">
@@ -678,7 +678,7 @@ let articleStack=[];
 let currentPillarTitle='',currentPillarIco='',currentPillarDesc='';
 
 async function openArticle(id,fromPillar=false){
-  const all=await getArticles();
+  const all=getArticles();
   const a=all.find(x=>x.id===id);
   if(!a)return;
   articleStack.push({fromPillar,title:currentPillarTitle,ico:currentPillarIco,desc:currentPillarDesc});
@@ -719,7 +719,7 @@ window.openP=function(t,i,d){
 };
 
 // Load on init
-loadRecentPosts();
+try{loadRecentPosts();}catch(e){}
 
 // ══════════════════════════════════════════════════════
 // FINOBASH DATA ENGINE v7 — PARALLEL FETCH, SHARED DATA
@@ -728,20 +728,24 @@ const API_BASE = 'https://finobash-website-production.up.railway.app';
 
 // ── ROUTING ──
 function showP(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const pg=document.getElementById('page-'+id);
-  if(pg)pg.classList.add('active');
-  window.scrollTo(0,0);
-  history.replaceState(null,'',window.location.pathname);
-  if(id==='markets'&&!mktInit)initMkt();
+  try{
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const pg=document.getElementById('page-'+id);
+    if(pg){pg.classList.add('active');}
+    window.scrollTo(0,0);
+    try{history.replaceState(null,'',window.location.pathname);}catch(e){}
+    if(id==='markets'&&!mktInit)initMkt();
+  }catch(e){console.error('showP error:',e);}
 }
 function goH(){showP('home');}
 function toSec(id){setTimeout(()=>{const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'});},150);}
 function toggleMob(){const d=document.getElementById('mobD');d.style.display=d.style.display==='flex'?'none':'flex';}
 function closeMob(){document.getElementById('mobD').style.display='none';}
 function chkMob(){const m=window.innerWidth<=768;document.getElementById('hbg').style.display=m?'block':'none';document.getElementById('mobSubBtn').style.display=m?'block':'none';}
-chkMob();window.addEventListener('resize',chkMob);
-window.addEventListener('scroll',()=>{document.getElementById('nv').style.borderBottomColor=window.scrollY>50?'rgba(212,168,67,.18)':'rgba(255,255,255,.06)';});
+// Safe init — wrap in try/catch so one error doesn't kill everything
+try{chkMob();}catch(e){}
+window.addEventListener('resize',()=>{try{chkMob();}catch(e){}});
+window.addEventListener('scroll',()=>{try{const nv=document.getElementById('nv');if(nv)nv.style.borderBottomColor=window.scrollY>50?'rgba(212,168,67,.18)':'rgba(255,255,255,.06)';}catch(e){}});
 
 // ── PILLAR ──
 function openP(t,i,d){document.getElementById('pT').textContent=t;document.getElementById('pI').textContent=i;document.getElementById('pD').textContent=d;document.getElementById('pModal').style.display='block';document.body.style.overflow='hidden';}
@@ -1179,7 +1183,7 @@ async function init(){
   ];
   await Promise.allSettled(jobs);
 }
-init();
+try{init();}catch(e){console.error("Init error:",e);}
 
 // Refresh every 5 min
 setInterval(async()=>{
