@@ -786,9 +786,16 @@ async function loadTab(cat) {
     var srv = await srvGet('/api/nse/indices');
     var rows = '';
     if (srv && srv.data && srv.data.length) {
-      // Only pick rows whose name exactly matches our list (case-insensitive)
       BROAD_EXACT.forEach(function(want) {
-        var found = srv.data.find(function(r){ return r.name && r.name.toUpperCase() === want; });
+        var found;
+        if (want === 'SENSEX') {
+          // NSE API returns Sensex as 'S&P BSE SENSEX' or 'SENSEX'
+          found = srv.data.find(function(r){ return r.name && r.name.toUpperCase().includes('SENSEX'); });
+        } else if (want === 'GIFT NIFTY') {
+          found = srv.data.find(function(r){ return r.name && r.name.toUpperCase().includes('GIFT'); });
+        } else {
+          found = srv.data.find(function(r){ return r.name && r.name.toUpperCase() === want; });
+        }
         if (found) rows += '<tr><td class="mkt-lbl">'+found.name+'</td><td class="mkt-val">'+fN(found.last)+'</td><td>'+chg(found.pchg)+'</td></tr>';
       });
     }
