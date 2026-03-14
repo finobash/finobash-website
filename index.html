@@ -379,7 +379,8 @@ footer p{font-size:.72rem;color:var(--muted);}
       <span class="s-tag">Official Exchange Data</span>
       <h1 style="font-family:var(--F);font-size:clamp(1.7rem,3.5vw,2.8rem);font-weight:600;">Global Indicators</h1>
       <div class="mkt-tabs">
-        <button class="mkt-tab active" onclick="switchTab('indian',this)">📊 Indian Indices</button>
+        <button class="mkt-tab active" onclick="switchTab('broad',this)">📊 Broader Market</button>
+        <button class="mkt-tab" onclick="switchTab('sector',this)">🏭 Sectorial Indices</button>
         <button class="mkt-tab" onclick="switchTab('gl',this)">📈 Nifty 50 Gainers &amp; Losers</button>
         <button class="mkt-tab" onclick="switchTab('global',this)">🌐 Global Indices</button>
         <button class="mkt-tab" onclick="switchTab('comm',this)">🥇 Commodities</button>
@@ -408,11 +409,11 @@ footer p{font-size:.72rem;color:var(--muted);}
             </div>
             <div class="soc-det"><strong>Instagram</strong><span>@finobash</span></div>
           </a>
-          <a href="mailto:finobash.official@gmail.com" class="soc-lnk">
+          <a href="/cdn-cgi/l/email-protection#97f1fef9f8f5f6e4ffb9f8f1f1fef4fef6fbd7f0faf6fefbb9f4f8fa" class="soc-lnk">
             <div class="soc-ico" style="background:#fff;">
               <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.907 1.528-1.148C21.69 2.28 24 3.434 24 5.457z"/></svg>
             </div>
-            <div class="soc-det"><strong>Email</strong><span>finobash.official@gmail.com</span></div>
+            <div class="soc-det"><strong>Email</strong><span><span class="__cf_email__" data-cfemail="2f494641404d4e5c4701404949464c464e436f48424e4643014c4042">[email&#160;protected]</span></span></div>
           </a>
         </div>
         <div class="con-card">
@@ -472,7 +473,7 @@ footer p{font-size:.72rem;color:var(--muted);}
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const API = 'https://finobash-website-production.up.railway.app';
 
 // ── ROUTING ──
@@ -581,18 +582,84 @@ async function srvGet(ep) {
 }
 
 // ── SYMBOL LISTS ──
-var IND5 = ['^NSEI','^BSESN','^NSMIDCP','^NSEBANK','^INDIAVIX'];
-var IND5N = ['Nifty 50','Sensex','Nifty Next 50','Nifty Bank','India VIX'];
+// ── HOMEPAGE mini panel symbols ──
+var IND5 = ['^NSEI','^BSESN','NIFTYBEES.NS','^INDIAVIX','^NSMIDCP'];
+var IND5N = ['Nifty 50','Sensex','Gift Nifty','India VIX','Nifty Next 50'];
 var GLB4 = ['^GSPC','^IXIC','^HSI','^N225'];
 var GLB4N = ['S&P 500','Nasdaq','Hang Seng','Nikkei 225'];
 var COMM3 = ['GC=F','SI=F','CL=F'];
 var COMM3N = ['Gold','Silver','Crude WTI'];
 var COMM3U = ['USD/oz','USD/oz','USD/bbl'];
+
+// ── Nifty 50 full list ──
 var N50 = ['RELIANCE.NS','TCS.NS','HDFCBANK.NS','BHARTIARTL.NS','ICICIBANK.NS','INFOSYS.NS','SBIN.NS','HINDUNILVR.NS','ITC.NS','LT.NS','KOTAKBANK.NS','AXISBANK.NS','BAJFINANCE.NS','ASIANPAINT.NS','MARUTI.NS','TITAN.NS','NESTLEIND.NS','WIPRO.NS','HCLTECH.NS','ULTRACEMCO.NS','SUNPHARMA.NS','ONGC.NS','POWERGRID.NS','NTPC.NS','ADANIENT.NS','ADANIPORTS.NS','BAJAJFINSV.NS','BPCL.NS','BRITANNIA.NS','CIPLA.NS','COALINDIA.NS','DIVISLAB.NS','DRREDDY.NS','EICHERMOT.NS','GRASIM.NS','HDFCLIFE.NS','HEROMOTOCO.NS','HINDALCO.NS','INDUSINDBK.NS','JSWSTEEL.NS','M&M.NS','APOLLOHOSP.NS','SBILIFE.NS','SHRIRAMFIN.NS','TATACONSUM.NS','TATAMOTORS.NS','TATASTEEL.NS','TECHM.NS','TRENT.NS','BAJAJ-AUTO.NS'];
-var FULL_IND = [{n:'Nifty 50',s:'^NSEI'},{n:'Sensex',s:'^BSESN'},{n:'Nifty Bank',s:'^NSEBANK'},{n:'Nifty IT',s:'^CNXIT'},{n:'Nifty Next 50',s:'^NSMIDCP'},{n:'Nifty Auto',s:'^CNXAUTO'},{n:'Nifty Pharma',s:'^CNXPHARMA'},{n:'Nifty Metal',s:'^CNXMETAL'},{n:'Nifty FMCG',s:'^CNXFMCG'},{n:'Nifty Realty',s:'^CNXREALTY'},{n:'Nifty Energy',s:'^CNXENERGY'},{n:'Nifty PSU Bank',s:'^CNXPSUBANK'},{n:'India VIX',s:'^INDIAVIX'}];
-var FULL_GLB = [{n:'S&P 500',s:'^GSPC',ex:'NYSE'},{n:'Nasdaq',s:'^IXIC',ex:'NASDAQ'},{n:'Dow Jones',s:'^DJI',ex:'NYSE'},{n:'FTSE 100',s:'^FTSE',ex:'LSE'},{n:'Nikkei 225',s:'^N225',ex:'TSE'},{n:'Hang Seng',s:'^HSI',ex:'HKEX'},{n:'DAX',s:'^GDAXI',ex:'XETRA'},{n:'CAC 40',s:'^FCHI',ex:'Euronext'},{n:'Shanghai',s:'000001.SS',ex:'SSE'},{n:'ASX 200',s:'^AXJO',ex:'ASX'},{n:'Kospi',s:'^KS11',ex:'KRX'}];
-var FULL_COMM = [{n:'Gold',s:'GC=F',u:'USD/troy oz',ex:'COMEX'},{n:'Silver',s:'SI=F',u:'USD/troy oz',ex:'COMEX'},{n:'Platinum',s:'PL=F',u:'USD/troy oz',ex:'NYMEX'},{n:'Crude WTI',s:'CL=F',u:'USD/barrel',ex:'NYMEX'},{n:'Brent Crude',s:'BZ=F',u:'USD/barrel',ex:'ICE'},{n:'Natural Gas',s:'NG=F',u:'USD/MMBtu',ex:'NYMEX'},{n:'Copper',s:'HG=F',u:'USD/lb',ex:'COMEX'},{n:'Wheat',s:'ZW=F',u:'USD/bushel',ex:'CBOT'}];
-var FULL_FOREX = [{n:'USD/INR',s:'USDINR=X'},{n:'EUR/INR',s:'EURINR=X'},{n:'GBP/INR',s:'GBPINR=X'},{n:'JPY/INR',s:'JPYINR=X'},{n:'AED/INR',s:'AEDINR=X'},{n:'SGD/INR',s:'SGDINR=X'},{n:'EUR/USD',s:'EURUSD=X'},{n:'GBP/USD',s:'GBPUSD=X'},{n:'USD/JPY',s:'JPY=X'},{n:'USD/CNY',s:'CNY=X'}];
+
+// ── Indian Broader Market Indices (Tab 1) ──
+var BROAD_IND = [
+  {n:'Nifty 50',        s:'^NSEI'},
+  {n:'Sensex',          s:'^BSESN'},
+  {n:'Gift Nifty',      s:'NIFTYBEES.NS'},
+  {n:'India VIX',       s:'^INDIAVIX'},
+  {n:'Nifty Next 50',   s:'^NSMIDCP'},
+  {n:'Nifty Midcap 50', s:'^NSEMDCP50'},
+  {n:'Nifty Smallcap 50',s:'^NSESCP'},
+  {n:'Nifty IPO',       s:'ICICIB22.NS'},
+  {n:'Nifty 10yr G-Sec',s:'LICNETFGSC.NS'},
+];
+
+// ── Indian Sectorial Indices (Tab 2 - new) ──
+var SECTOR_IND = [
+  {n:'Nifty Bank',           s:'^NSEBANK'},
+  {n:'Nifty Metal',          s:'^CNXMETAL'},
+  {n:'Nifty Pharma',         s:'^CNXPHARMA'},
+  {n:'Nifty IT',             s:'^CNXIT'},
+  {n:'Nifty Auto',           s:'^CNXAUTO'},
+  {n:'Nifty Energy',         s:'^CNXENERGY'},
+  {n:'Nifty FMCG',           s:'^CNXFMCG'},
+  {n:'Nifty Realty',         s:'^CNXREALTY'},
+  {n:'Nifty Healthcare',     s:'^CNXPHARMA'},
+  {n:'Nifty India Defence',  s:'NIFTYIETF.NS'},
+  {n:'Nifty Housing',        s:'HDFCPVTBAN.NS'},
+  {n:'Nifty Chemicals',      s:'CHEMIETF.NS'},
+];
+
+// ── Global Indices (Tab 4) ──
+var FULL_GLB = [
+  {n:'S&P 500',    s:'^GSPC',    ex:'NYSE'},
+  {n:'Nasdaq',     s:'^IXIC',    ex:'NASDAQ'},
+  {n:'Dow Jones',  s:'^DJI',     ex:'NYSE'},
+  {n:'FTSE 100',   s:'^FTSE',    ex:'LSE'},
+  {n:'Nikkei 225', s:'^N225',    ex:'TSE'},
+  {n:'Hang Seng',  s:'^HSI',     ex:'HKEX'},
+  {n:'DAX',        s:'^GDAXI',   ex:'XETRA'},
+  {n:'CAC 40',     s:'^FCHI',    ex:'Euronext'},
+  {n:'Shanghai',   s:'000001.SS',ex:'SSE'},
+  {n:'ASX 200',    s:'^AXJO',    ex:'ASX'},
+  {n:'Kospi',      s:'^KS11',    ex:'KRX'},
+];
+
+// ── Key Commodities (Tab 5) ──
+var FULL_COMM = [
+  {n:'Gold',        s:'GC=F',  u:'USD/troy oz', ex:'COMEX'},
+  {n:'Silver',      s:'SI=F',  u:'USD/troy oz', ex:'COMEX'},
+  {n:'Platinum',    s:'PL=F',  u:'USD/troy oz', ex:'NYMEX'},
+  {n:'Crude WTI',   s:'CL=F',  u:'USD/barrel',  ex:'NYMEX'},
+  {n:'Brent Crude', s:'BZ=F',  u:'USD/barrel',  ex:'ICE'},
+  {n:'Natural Gas', s:'NG=F',  u:'USD/MMBtu',   ex:'NYMEX'},
+  {n:'Copper',      s:'HG=F',  u:'USD/lb',      ex:'COMEX'},
+  {n:'Steel',       s:'STEEL.NS',u:'INR/unit',  ex:'NSE'},
+];
+
+// ── Forex (Tab 6) ──
+var FULL_FOREX = [
+  {n:'USD/INR', s:'USDINR=X'},
+  {n:'EUR/INR', s:'EURINR=X'},
+  {n:'GBP/INR', s:'GBPINR=X'},
+  {n:'JPY/INR', s:'JPYINR=X'},
+  {n:'CNY/INR', s:'CNYINR=X'},
+  {n:'AED/INR', s:'AEDINR=X'},
+  {n:'SGD/INR', s:'SGDINR=X'},
+];
 
 // ── BATCH FETCH via Railway ──
 async function batch(syms) {
@@ -610,21 +677,21 @@ async function loadHome() {
   var p3 = batch(GLB4);
   var p4 = batch(COMM3);
 
-  // Indian indices
+  // Indian indices — Nifty50, Sensex, Gift Nifty, India VIX, Nifty Next50
   p1.then(function(srv) {
     var rows = '';
     if (srv && srv.data && srv.data.length) {
       var d = srv.data;
-      var nifty = d.find(function(x) { return x.name === 'NIFTY 50'; }) || d[0];
-      var sensex = d.find(function(x) { return x.name && x.name.includes('SENSEX'); });
-      var rest = d.filter(function(x) { return x !== nifty && x !== sensex; }).slice(0, 3);
-      var ordered = [nifty, sensex].concat(rest).filter(Boolean).slice(0, 5);
-      ordered.forEach(function(r) {
-        rows += '<tr><td style="color:var(--text);font-weight:500;">' + r.name + '</td><td class="hgi-val">' + fN(r.last) + '</td><td>' + chg(r.pchg) + '</td></tr>';
+      var nifty  = d.find(function(x){return x.name==='NIFTY 50';});
+      var sensex = d.find(function(x){return x.name&&x.name.includes('SENSEX');});
+      var vix    = d.find(function(x){return x.name&&x.name.includes('VIX');});
+      var next50 = d.find(function(x){return x.name&&x.name.includes('NEXT 50');});
+      var mid50  = d.find(function(x){return x.name&&x.name.includes('MIDCAP 50');});
+      [nifty,sensex,vix,next50,mid50].filter(Boolean).forEach(function(r){
+        rows+='<tr><td style="color:var(--text);font-weight:500;">'+r.name+'</td><td class="hgi-val">'+fN(r.last)+'</td><td>'+chg(r.pchg)+'</td></tr>';
       });
-    } else {
-      rows = '<tr><td colspan="3" class="hgi-load">Data unavailable</td></tr>';
     }
+    if (!rows) rows='<tr><td colspan="3" class="hgi-load">Data unavailable</td></tr>';
     document.getElementById('hp-indian').innerHTML = rows;
   });
 
@@ -669,7 +736,7 @@ var mktActiveTab = 'indian';
 function initMarkets() {
   if (!mktDone) {
     mktDone = true;
-    switchTab('indian', document.querySelector('.mkt-tab'));
+    switchTab('broad', document.querySelector('.mkt-tab'));
   }
 }
 
@@ -686,26 +753,48 @@ async function loadTab(cat) {
   var ts = '<span class="mkt-time">Updated ' + nowIST() + '</span>';
   var nd = noData(3);
 
-  if (cat === 'indian') {
+  if (cat === 'broad') {
+    // Try NSE Railway first
     var srv = await srvGet('/api/nse/indices');
     var rows = '';
     if (srv && srv.data && srv.data.length) {
       var d = srv.data;
-      var nifty = d.find(function(x) { return x.name === 'NIFTY 50'; }) || d[0];
-      var sensex = d.find(function(x) { return x.name && x.name.includes('SENSEX'); });
-      var rest = d.filter(function(x) { return x !== nifty && x !== sensex; });
-      [nifty, sensex].concat(rest).filter(Boolean).forEach(function(r) {
-        rows += '<tr><td class="mkt-lbl">' + r.name + '</td><td class="mkt-val">' + fN(r.last) + '</td><td>' + chg(r.pchg) + '</td></tr>';
+      var want = ['NIFTY 50','NIFTY NEXT 50','NIFTY MIDCAP 50','NIFTY SMLCAP 50','INDIA VIX','SENSEX'];
+      var nifty = d.find(function(x){return x.name==='NIFTY 50';});
+      var sensex = d.find(function(x){return x.name&&x.name.includes('SENSEX');});
+      var rest = d.filter(function(x){return x!==nifty&&x!==sensex&&want.some(function(w){return x.name&&x.name.includes(w.replace('NIFTY ',''));});});
+      [nifty,sensex].concat(rest).filter(Boolean).forEach(function(r){
+        rows += '<tr><td class="mkt-lbl">'+r.name+'</td><td class="mkt-val">'+fN(r.last)+'</td><td>'+chg(r.pchg)+'</td></tr>';
       });
     }
     if (!rows) {
-      // Yahoo fallback
-      var res = await batch(FULL_IND.map(function(x) { return x.s; }));
-      FULL_IND.forEach(function(x, i) {
-        if (res[i]) rows += '<tr><td class="mkt-lbl">' + x.n + '</td><td class="mkt-val">' + fN(res[i].price) + '</td><td>' + chg(res[i].chg) + '</td></tr>';
+      var res = await batch(BROAD_IND.map(function(x){return x.s;}));
+      BROAD_IND.forEach(function(x,i){
+        if(res[i]) rows+='<tr><td class="mkt-lbl">'+x.n+'</td><td class="mkt-val">'+fN(res[i].price)+'</td><td>'+chg(res[i].chg)+'</td></tr>';
       });
     }
-    panel.innerHTML = '<div class="mkt-tcard"><div class="mkt-thd"><h3>📊 Indian Indices <span class="mkt-ex">NSE India</span></h3>' + ts + '</div><table class="mkt-table"><thead><tr><th>Index</th><th>Value</th><th>Chg %</th></tr></thead><tbody>' + (rows || nd) + '</tbody></table></div>';
+    panel.innerHTML='<div class="mkt-tcard"><div class="mkt-thd"><h3>📊 Indian Broader Market <span class="mkt-ex">NSE India</span></h3>'+ts+'</div><table class="mkt-table"><thead><tr><th>Index</th><th>Value</th><th>Chg %</th></tr></thead><tbody>'+(rows||nd)+'</tbody></table></div>';
+  }
+
+  else if (cat === 'sector') {
+    var srv = await srvGet('/api/nse/indices');
+    var rows = '';
+    if (srv && srv.data && srv.data.length) {
+      var sectorNames = ['NIFTY BANK','NIFTY METAL','NIFTY PHARMA','NIFTY IT','NIFTY AUTO','NIFTY ENERGY','NIFTY FMCG','NIFTY REALTY','NIFTY HEALTHCARE','NIFTY INDIA DEFENCE','NIFTY HOUSING','NIFTY CHEMICALS'];
+      var matched = srv.data.filter(function(r){
+        return sectorNames.some(function(s){return r.name&&r.name.toUpperCase().includes(s.replace('NIFTY ',''));});
+      });
+      matched.forEach(function(r){
+        rows+='<tr><td class="mkt-lbl">'+r.name+'</td><td class="mkt-val">'+fN(r.last)+'</td><td>'+chg(r.pchg)+'</td></tr>';
+      });
+    }
+    if (!rows) {
+      var res = await batch(SECTOR_IND.map(function(x){return x.s;}));
+      SECTOR_IND.forEach(function(x,i){
+        if(res[i]) rows+='<tr><td class="mkt-lbl">'+x.n+'</td><td class="mkt-val">'+fN(res[i].price)+'</td><td>'+chg(res[i].chg)+'</td></tr>';
+      });
+    }
+    panel.innerHTML='<div class="mkt-tcard"><div class="mkt-thd"><h3>🏭 Indian Sectorial Indices <span class="mkt-ex">NSE India</span></h3>'+ts+'</div><table class="mkt-table"><thead><tr><th>Index</th><th>Value</th><th>Chg %</th></tr></thead><tbody>'+(rows||nd)+'</tbody></table></div>';
   }
 
   else if (cat === 'gl') {
