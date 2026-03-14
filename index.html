@@ -781,44 +781,44 @@ async function loadTab(cat) {
   var nd = noData(3);
 
   if (cat === 'broad') {
-    // Try NSE Railway first
+    // EXACT names from Excel — no extras
+    var BROAD_EXACT = ['NIFTY 50','SENSEX','GIFT NIFTY','INDIA VIX','NIFTY NEXT 50','NIFTY MIDCAP 50','NIFTY SMLCAP 50','NIFTY IPO','NIFTY SME EMERGE','NIFTY 4-8 YR G-SEC INDEX','NIFTY 10 YR BENCHMARK G-SEC'];
     var srv = await srvGet('/api/nse/indices');
     var rows = '';
     if (srv && srv.data && srv.data.length) {
-      var d = srv.data;
-      var want = ['NIFTY 50','NIFTY NEXT 50','NIFTY MIDCAP 50','NIFTY SMALLCAP 50','INDIA VIX','SENSEX','NIFTY IPO','SME EMERGE','G-SEC'];
-      var nifty = d.find(function(x){return x.name==='NIFTY 50';});
-      var sensex = d.find(function(x){return x.name&&x.name.includes('SENSEX');});
-      var rest = d.filter(function(x){return x!==nifty&&x!==sensex&&want.some(function(w){return x.name&&x.name.includes(w.replace('NIFTY ',''));});});
-      [nifty,sensex].concat(rest).filter(Boolean).forEach(function(r){
-        rows += '<tr><td class="mkt-lbl">'+r.name+'</td><td class="mkt-val">'+fN(r.last)+'</td><td>'+chg(r.pchg)+'</td></tr>';
+      // Only pick rows whose name exactly matches our list (case-insensitive)
+      BROAD_EXACT.forEach(function(want) {
+        var found = srv.data.find(function(r){ return r.name && r.name.toUpperCase() === want; });
+        if (found) rows += '<tr><td class="mkt-lbl">'+found.name+'</td><td class="mkt-val">'+fN(found.last)+'</td><td>'+chg(found.pchg)+'</td></tr>';
       });
     }
     if (!rows) {
+      // Yahoo fallback — use BROAD_IND symbol list
       var res = await batch(BROAD_IND.map(function(x){return x.s;}));
       BROAD_IND.forEach(function(x,i){
         if(res[i]) rows+='<tr><td class="mkt-lbl">'+x.n+'</td><td class="mkt-val">'+fN(res[i].price)+'</td><td>'+chg(res[i].chg)+'</td></tr>';
+        else rows+='<tr><td class="mkt-lbl">'+x.n+'</td><td class="mkt-val">—</td><td>—</td></tr>';
       });
     }
     panel.innerHTML='<div class="mkt-tcard"><div class="mkt-thd"><h3>📊 Indian Broader Market <span class="mkt-ex">NSE India</span></h3>'+ts+'</div><table class="mkt-table"><thead><tr><th>Index</th><th>Value</th><th>Chg %</th></tr></thead><tbody>'+(rows||nd)+'</tbody></table></div>';
   }
 
   else if (cat === 'sector') {
+    // EXACT names from Excel — no extras
+    var SECTOR_EXACT = ['NIFTY BANK','NIFTY METAL','NIFTY PHARMA','NIFTY IT','NIFTY AUTO','NIFTY ENERGY','NIFTY FMCG','NIFTY INDIA TOURISM','NIFTY HOUSING','NIFTY EV & NEW AGE AUTOMOTIVE','NIFTY INDIA DEFENCE','NIFTY CHEMICALS','NIFTY REALTY','NIFTY HEALTHCARE INDEX'];
     var srv = await srvGet('/api/nse/indices');
     var rows = '';
     if (srv && srv.data && srv.data.length) {
-      var sectorNames = ['NIFTY BANK','NIFTY METAL','NIFTY PHARMA','NIFTY IT','NIFTY AUTO','NIFTY ENERGY','NIFTY FMCG','NIFTY REALTY','NIFTY HEALTHCARE','NIFTY INDIA DEFENCE','NIFTY HOUSING','NIFTY CHEMICALS','NIFTY INDIA TOURISM','NIFTY EV'];
-      var matched = srv.data.filter(function(r){
-        return sectorNames.some(function(s){return r.name&&r.name.toUpperCase().includes(s.replace('NIFTY ',''));});
-      });
-      matched.forEach(function(r){
-        rows+='<tr><td class="mkt-lbl">'+r.name+'</td><td class="mkt-val">'+fN(r.last)+'</td><td>'+chg(r.pchg)+'</td></tr>';
+      SECTOR_EXACT.forEach(function(want) {
+        var found = srv.data.find(function(r){ return r.name && r.name.toUpperCase() === want; });
+        if (found) rows += '<tr><td class="mkt-lbl">'+found.name+'</td><td class="mkt-val">'+fN(found.last)+'</td><td>'+chg(found.pchg)+'</td></tr>';
       });
     }
     if (!rows) {
       var res = await batch(SECTOR_IND.map(function(x){return x.s;}));
       SECTOR_IND.forEach(function(x,i){
         if(res[i]) rows+='<tr><td class="mkt-lbl">'+x.n+'</td><td class="mkt-val">'+fN(res[i].price)+'</td><td>'+chg(res[i].chg)+'</td></tr>';
+        else rows+='<tr><td class="mkt-lbl">'+x.n+'</td><td class="mkt-val">—</td><td>—</td></tr>';
       });
     }
     panel.innerHTML='<div class="mkt-tcard"><div class="mkt-thd"><h3>🏭 Indian Sectorial Indices <span class="mkt-ex">NSE India</span></h3>'+ts+'</div><table class="mkt-table"><thead><tr><th>Index</th><th>Value</th><th>Chg %</th></tr></thead><tbody>'+(rows||nd)+'</tbody></table></div>';
