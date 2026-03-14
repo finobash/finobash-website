@@ -815,14 +815,38 @@ function loadPillarArticles(pillar) {
 
 function openArticleById(id, fromPillar) {
   var all = getArticles();
-  var a = all.find(function(x) { return x.id === id; });
+  var a = null;
+  for (var i = 0; i < all.length; i++) { if (all[i].id === id) { a = all[i]; break; } }
   if (!a) return;
   var modal = document.getElementById('pModal');
   var inner = modal.querySelector('.pm-inner');
-  var body = a.content.split('
-
-').map(function(p) { return '<p>' + p.split('\n').join('<br>') + '</p>'; }).join('');
-  inner.innerHTML = '<button onclick="' + (fromPillar ? 'openPillar(\'' + a.pillar + '\',\'' + (PILL_ICO[a.pillar]||'📄') + '\',\'\')' : 'closePillar()') + '" style="background:var(--card);border:1px solid var(--bdr2);color:var(--muted);padding:8px 16px;border-radius:3px;cursor:pointer;font-family:var(--B);font-size:.76rem;margin-bottom:28px;">← Back</button><div class="art-reader">' + pillBadge(a.pillar) + '<h2>' + a.title + '</h2><div class="art-reader-meta">' + fmtDate(a.createdAt) + ' · ' + readTime(a.content) + ' min read · FinoBash</div><div class="art-body">' + body + '</div></div>';
+  var lines = a.content.split('\n');
+  var paras = [];
+  var cur = '';
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i] === '') {
+      if (cur) { paras.push(cur); cur = ''; }
+    } else {
+      cur += (cur ? '<br>' : '') + lines[i];
+    }
+  }
+  if (cur) paras.push(cur);
+  var body = '';
+  for (var i = 0; i < paras.length; i++) { body += '<p>' + paras[i] + '</p>'; }
+  var btn = document.createElement('button');
+  btn.style.cssText = 'background:var(--card);border:1px solid var(--bdr2);color:var(--muted);padding:8px 16px;border-radius:3px;cursor:pointer;font-family:var(--B);font-size:.76rem;margin-bottom:28px;';
+  btn.textContent = '← Back';
+  if (fromPillar) {
+    btn.onclick = function() { openPillar(a.pillar, PILL_ICO[a.pillar] || '', ''); };
+  } else {
+    btn.onclick = closePillar;
+  }
+  inner.innerHTML = '';
+  inner.appendChild(btn);
+  var reader = document.createElement('div');
+  reader.className = 'art-reader';
+  reader.innerHTML = pillBadge(a.pillar) + '<h2>' + a.title + '</h2><div class="art-reader-meta">' + fmtDate(a.createdAt) + ' · ' + readTime(a.content) + ' min read · FinoBash</div><div class="art-body">' + body + '</div>';
+  inner.appendChild(reader);
   modal.style.display = 'block';
   document.body.style.overflow = 'hidden';
   modal.scrollTop = 0;
