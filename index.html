@@ -605,6 +605,7 @@ hr.dv{border:none;border-top:1px solid var(--bdr2);margin:24px 0;}
 </div>
 
 <script>
+
 // ══════════════════════════════════════════════
 // ARTICLE SYSTEM — reads from shared storage
 // ══════════════════════════════════════════════
@@ -1174,20 +1175,16 @@ function renderMktContent(cat){
 async function init(){
   // Fire all 4 in parallel — render homepage as each one completes
   const jobs=[
-    loadIndian().then(()=>renderHome()),
-    loadGL().then(()=>renderHome()),
-    loadGlobal().then(()=>renderHome()),
-    loadComm().then(()=>renderHome()),
-  ];
-  await Promise.allSettled(jobs);
-}
-try{init();}catch(e){console.error("Init error:",e);}
+    loadIndian().
 
 // Refresh every 5 min
 setInterval(async()=>{
-// Refresh every 5 min
-setInterval(async()=>{
-  STORE.india
+  STORE.indian.loaded=false;STORE.gl.loaded=false;
+  STORE.global.loaded=false;STORE.comm.loaded=false;
+  STORE.forex.loaded=false;
+  await init();
+  if(mktInit&&STORE[mktActive]&&STORE[mktActive].loaded)renderMktContent(mktActive);
+},5*60*1000);
 </script>
 </body>
 </html>
