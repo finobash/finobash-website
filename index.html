@@ -595,32 +595,37 @@ var COMM3U = ['USD/oz','USD/oz','USD/bbl'];
 var N50 = ['RELIANCE.NS','TCS.NS','HDFCBANK.NS','BHARTIARTL.NS','ICICIBANK.NS','INFOSYS.NS','SBIN.NS','HINDUNILVR.NS','ITC.NS','LT.NS','KOTAKBANK.NS','AXISBANK.NS','BAJFINANCE.NS','ASIANPAINT.NS','MARUTI.NS','TITAN.NS','NESTLEIND.NS','WIPRO.NS','HCLTECH.NS','ULTRACEMCO.NS','SUNPHARMA.NS','ONGC.NS','POWERGRID.NS','NTPC.NS','ADANIENT.NS','ADANIPORTS.NS','BAJAJFINSV.NS','BPCL.NS','BRITANNIA.NS','CIPLA.NS','COALINDIA.NS','DIVISLAB.NS','DRREDDY.NS','EICHERMOT.NS','GRASIM.NS','HDFCLIFE.NS','HEROMOTOCO.NS','HINDALCO.NS','INDUSINDBK.NS','JSWSTEEL.NS','M&M.NS','APOLLOHOSP.NS','SBILIFE.NS','SHRIRAMFIN.NS','TATACONSUM.NS','TATAMOTORS.NS','TATASTEEL.NS','TECHM.NS','TRENT.NS','BAJAJ-AUTO.NS'];
 
 // ── Indian Broader Market Indices (Tab 1) ──
+// ── Indian Broader Market — EXACTLY as per Excel ──
 var BROAD_IND = [
-  {n:'Nifty 50',        s:'^NSEI'},
-  {n:'Sensex',          s:'^BSESN'},
-  {n:'Gift Nifty',      s:'NIFTYBEES.NS'},
-  {n:'India VIX',       s:'^INDIAVIX'},
-  {n:'Nifty Next 50',   s:'^NSMIDCP'},
-  {n:'Nifty Midcap 50', s:'^NSEMDCP50'},
-  {n:'Nifty Smallcap 50',s:'^NSESCP'},
-  {n:'Nifty IPO',       s:'ICICIB22.NS'},
-  {n:'Nifty 10yr G-Sec',s:'LICNETFGSC.NS'},
+  {n:'Nifty 50',              s:'^NSEI'},
+  {n:'Sensex',                s:'^BSESN'},
+  {n:'Gift Nifty',            s:'NIFTYBEES.NS'},
+  {n:'India VIX',             s:'^INDIAVIX'},
+  {n:'Nifty Next 50',         s:'^NSMIDCP'},
+  {n:'Nifty Midcap 50',       s:'^NSEMDCP50'},
+  {n:'Nifty Smallcap 50',     s:'^NSESCP'},
+  {n:'Nifty IPO',             s:'^CNXIPO'},
+  {n:'Nifty SME Emerge',      s:'^CNXSME'},
+  {n:'Nifty 4-8yr G-Sec',     s:'^NIFTY4_8GSEC'},
+  {n:'Nifty 10yr G-Sec',      s:'^NIFTY10YRGSEC'},
 ];
 
-// ── Indian Sectorial Indices (Tab 2 - new) ──
+// ── Indian Sectorial Indices — EXACTLY as per Excel ──
 var SECTOR_IND = [
-  {n:'Nifty Bank',           s:'^NSEBANK'},
-  {n:'Nifty Metal',          s:'^CNXMETAL'},
-  {n:'Nifty Pharma',         s:'^CNXPHARMA'},
-  {n:'Nifty IT',             s:'^CNXIT'},
-  {n:'Nifty Auto',           s:'^CNXAUTO'},
-  {n:'Nifty Energy',         s:'^CNXENERGY'},
-  {n:'Nifty FMCG',           s:'^CNXFMCG'},
-  {n:'Nifty Realty',         s:'^CNXREALTY'},
-  {n:'Nifty Healthcare',     s:'^CNXPHARMA'},
-  {n:'Nifty India Defence',  s:'NIFTYIETF.NS'},
-  {n:'Nifty Housing',        s:'HDFCPVTBAN.NS'},
-  {n:'Nifty Chemicals',      s:'CHEMIETF.NS'},
+  {n:'Nifty Bank',                  s:'^NSEBANK'},
+  {n:'Nifty Metal',                 s:'^CNXMETAL'},
+  {n:'Nifty Pharma',                s:'^CNXPHARMA'},
+  {n:'Nifty IT',                    s:'^CNXIT'},
+  {n:'Nifty Auto',                  s:'^CNXAUTO'},
+  {n:'Nifty Energy',                s:'^CNXENERGY'},
+  {n:'Nifty FMCG',                  s:'^CNXFMCG'},
+  {n:'Nifty India Tourism',         s:'^CNXTOURISM'},
+  {n:'Nifty Housing',               s:'^CNXHOUSING'},
+  {n:'Nifty EV & New Age Auto',     s:'^CNXEV'},
+  {n:'Nifty India Defence',         s:'^CNXDEFENCE'},
+  {n:'Nifty Chemicals',             s:'^CNXCHEMICALS'},
+  {n:'Nifty Realty',                s:'^CNXREALTY'},
+  {n:'Nifty Healthcare',            s:'^CNXHEALTHCARE'},
 ];
 
 // ── Global Indices (Tab 4) ──
@@ -781,7 +786,7 @@ async function loadTab(cat) {
     var rows = '';
     if (srv && srv.data && srv.data.length) {
       var d = srv.data;
-      var want = ['NIFTY 50','NIFTY NEXT 50','NIFTY MIDCAP 50','NIFTY SMLCAP 50','INDIA VIX','SENSEX'];
+      var want = ['NIFTY 50','NIFTY NEXT 50','NIFTY MIDCAP 50','NIFTY SMALLCAP 50','INDIA VIX','SENSEX','NIFTY IPO','SME EMERGE','G-SEC'];
       var nifty = d.find(function(x){return x.name==='NIFTY 50';});
       var sensex = d.find(function(x){return x.name&&x.name.includes('SENSEX');});
       var rest = d.filter(function(x){return x!==nifty&&x!==sensex&&want.some(function(w){return x.name&&x.name.includes(w.replace('NIFTY ',''));});});
@@ -802,7 +807,7 @@ async function loadTab(cat) {
     var srv = await srvGet('/api/nse/indices');
     var rows = '';
     if (srv && srv.data && srv.data.length) {
-      var sectorNames = ['NIFTY BANK','NIFTY METAL','NIFTY PHARMA','NIFTY IT','NIFTY AUTO','NIFTY ENERGY','NIFTY FMCG','NIFTY REALTY','NIFTY HEALTHCARE','NIFTY INDIA DEFENCE','NIFTY HOUSING','NIFTY CHEMICALS'];
+      var sectorNames = ['NIFTY BANK','NIFTY METAL','NIFTY PHARMA','NIFTY IT','NIFTY AUTO','NIFTY ENERGY','NIFTY FMCG','NIFTY REALTY','NIFTY HEALTHCARE','NIFTY INDIA DEFENCE','NIFTY HOUSING','NIFTY CHEMICALS','NIFTY INDIA TOURISM','NIFTY EV'];
       var matched = srv.data.filter(function(r){
         return sectorNames.some(function(s){return r.name&&r.name.toUpperCase().includes(s.replace('NIFTY ',''));});
       });
