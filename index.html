@@ -638,7 +638,7 @@ var FULL_GLB = [
   {n:'Kospi',      s:'^KS11',    ex:'KRX'},
 ];
 
-// ── Key Commodities (Tab 5) ──
+// ── Key Commodities (Tab 5) — actual material/futures prices ──
 var FULL_COMM = [
   {n:'Gold',        s:'GC=F',  u:'USD/troy oz', ex:'COMEX'},
   {n:'Silver',      s:'SI=F',  u:'USD/troy oz', ex:'COMEX'},
@@ -647,7 +647,6 @@ var FULL_COMM = [
   {n:'Brent Crude', s:'BZ=F',  u:'USD/barrel',  ex:'ICE'},
   {n:'Natural Gas', s:'NG=F',  u:'USD/MMBtu',   ex:'NYMEX'},
   {n:'Copper',      s:'HG=F',  u:'USD/lb',      ex:'COMEX'},
-  {n:'Steel',       s:'STEEL.NS',u:'INR/unit',  ex:'NSE'},
 ];
 
 // ── Forex (Tab 6) ──
@@ -682,30 +681,53 @@ async function loadHome() {
     var rows = '';
     if (srv && srv.data && srv.data.length) {
       var d = srv.data;
-      var nifty  = d.find(function(x){return x.name==='NIFTY 50';});
-      var sensex = d.find(function(x){return x.name&&x.name.includes('SENSEX');});
-      var vix    = d.find(function(x){return x.name&&x.name.includes('VIX');});
-      var next50 = d.find(function(x){return x.name&&x.name.includes('NEXT 50');});
-      var mid50  = d.find(function(x){return x.name&&x.name.includes('MIDCAP 50');});
+      function nm(x,s){return x.name&&x.name.toUpperCase().includes(s.toUpperCase());}
+      var nifty  = d.find(function(x){return nm(x,'NIFTY 50')&&!nm(x,'NEXT')&&!nm(x,'BANK')&&!nm(x,'MIDCAP');});
+      var sensex = d.find(function(x){return nm(x,'SENSEX');});
+      var vix    = d.find(function(x){return nm(x,'VIX');});
+      var next50 = d.find(function(x){return nm(x,'NEXT 50');});
+      var mid50  = d.find(function(x){return nm(x,'MIDCAP 50')&&!nm(x,'SMALL');});
       [nifty,sensex,vix,next50,mid50].filter(Boolean).forEach(function(r){
         rows+='<tr><td style="color:var(--text);font-weight:500;">'+r.name+'</td><td class="hgi-val">'+fN(r.last)+'</td><td>'+chg(r.pchg)+'</td></tr>';
       });
     }
-    if (!rows) rows='<tr><td colspan="3" class="hgi-load">Data unavailable</td></tr>';
+    if (!rows) {
+      // Yahoo fallback for homepage Indian panel
+      batch(IND5).then(function(res){
+        var fbRows='';
+        IND5.forEach(function(s,i){var q=res[i];fbRows+='<tr><td style="color:var(--text);font-weight:500;">'+IND5N[i]+'</td><td class="hgi-val">'+(q?fN(q.price):'—')+'</td><td>'+(q?chg(q.chg):'—')+'</td></tr>';});
+        document.getElementById('hp-indian').innerHTML=fbRows;
+      });
+      rows='<tr><td colspan="3" class="hgi-load">Loading via fallback...</td></tr>';
+    }
     document.getElementById('hp-indian').innerHTML = rows;
   });
 
   // Gainers/Losers
   p2.then(function(srv) {
     var gR = '', lR = '';
-    if (srv) {
-      var g5 = (srv.gainers || []).slice(0, 5);
-      var l5 = (srv.losers || []).slice(0, 5);
-      g5.forEach(function(s) { gR += '<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">' + s.symbol + '</td><td>' + chg(s.pchg) + '</td></tr>'; });
-      l5.forEach(function(s) { lR += '<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">' + s.symbol + '</td><td>' + chg(s.pchg) + '</td></tr>'; });
+    if (srv && srv.gainers && srv.gainers.length) {
+      var g5 = srv.gainers.slice(0, 5);
+      var l5 = (srv.losers||[]).slice(0, 5);
+      g5.forEach(function(s){gR+='<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">'+(s.symbol||s.name)+'</td><td>'+chg(s.pchg)+'</td></tr>';});
+      l5.forEach(function(s){lR+='<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">'+(s.symbol||s.name)+'</td><td>'+chg(s.pchg)+'</td></tr>';});
+    } else {
+      // Yahoo fallback — fetch all N50 and sort
+      batch(N50).then(function(res){
+        var stocks=N50.map(function(s,i){return res[i]?{sym:s.replace('.NS',''),pchg:res[i].chg}:null;}).filter(Boolean);
+        var gn=stocks.filter(function(s){return s.pchg>0;}).sort(function(a,b){return b.pchg-a.pchg;}).slice(0,5);
+        var ls=stocks.filter(function(s){return s.pchg<0;}).sort(function(a,b){return a.pchg-b.pchg;}).slice(0,5);
+        var gFB='',lFB='';
+        gn.forEach(function(s){gFB+='<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">'+s.sym+'</td><td>'+chg(s.pchg)+'</td></tr>';});
+        ls.forEach(function(s){lFB+='<tr><td style="color:var(--text);font-size:.72rem;font-weight:500;">'+s.sym+'</td><td>'+chg(s.pchg)+'</td></tr>';});
+        document.getElementById('hp-gainers').innerHTML=gFB||'<tr><td colspan="2" class="hgi-load">No data</td></tr>';
+        document.getElementById('hp-losers').innerHTML=lFB||'<tr><td colspan="2" class="hgi-load">No data</td></tr>';
+      });
+      gR='<tr><td colspan="2" class="hgi-load">Loading...</td></tr>';
+      lR='<tr><td colspan="2" class="hgi-load">Loading...</td></tr>';
     }
-    document.getElementById('hp-gainers').innerHTML = gR || '<tr><td colspan="2" class="hgi-load">No data</td></tr>';
-    document.getElementById('hp-losers').innerHTML = lR || '<tr><td colspan="2" class="hgi-load">No data</td></tr>';
+    document.getElementById('hp-gainers').innerHTML = gR;
+    document.getElementById('hp-losers').innerHTML = lR;
   });
 
   // Global
